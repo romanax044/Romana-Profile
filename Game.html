@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Rock • Paper • Scissors — Mini Game</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --bg:#0f1720; --card:#111827; --accent:#7dd3fc; --muted:#94a3b8; --win:#34d399; --lose:#fb7185;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:linear-gradient(180deg,var(--bg),#071023); color:#e6eef8; min-height:100vh;
+      display:flex; align-items:center; justify-content:center; padding:20px;
+    }
+    .game {
+      width:100%; max-width:760px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:12px; padding:18px; box-shadow:0 6px 24px rgba(2,6,23,0.6); border:1px solid rgba(255,255,255,0.03);
+    }
+    h1{margin:0 0 8px 0; font-size:20px;}
+    .instructions{
+      background:rgba(255,255,255,0.02); padding:12px 14px; border-radius:8px; color:var(--muted); font-size:14px;
+      margin-bottom:14px;
+    }
+    .board{display:flex; gap:18px; align-items:flex-start;}
+    .play-area{flex:1; padding:16px; background:rgba(255,255,255,0.01); border-radius:10px;}
+    .scoreboard{width:220px; padding:16px; background:rgba(0,0,0,0.25); border-radius:10px; text-align:center;}
+    .scoreboard h2{margin:0 0 8px 0; font-size:16px}
+    .score {font-size:28px; margin:6px 0; color:var(--accent); font-weight:600;}
+    .result {margin-top:10px; min-height:40px; display:flex; align-items:center; justify-content:center; font-weight:600;}
+    .controls {display:flex; gap:10px; justify-content:center; margin-top:14px; flex-wrap:wrap;}
+    button.choice {
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
+      border:1px solid rgba(255,255,255,0.04); color:#eaf6ff; padding:12px 18px; font-size:16px; border-radius:10px;
+      cursor:pointer; min-width:110px;
+    }
+    button.choice:hover{transform:translateY(-3px); transition:transform .12s}
+    .small {font-size:13px; color:var(--muted)}
+    .status-row{display:flex; gap:12px; justify-content:space-between; align-items:center; margin-top:12px;}
+    .message{font-size:15px; color: #cfe6ff; text-align:center; padding:10px 12px; border-radius:8px}
+    .win {background:linear-gradient(90deg, rgba(52,211,153,0.12), rgba(52,211,153,0.06)); color:var(--win);}
+    .lose{background:linear-gradient(90deg, rgba(251,113,133,0.12), rgba(251,113,133,0.06)); color:var(--lose);}
+    .tie{background:linear-gradient(90deg, rgba(125,211,252,0.08), rgba(125,211,252,0.02)); color:var(--accent);}
+    .footer {margin-top:14px; display:flex; gap:8px; justify-content:center; align-items:center;}
+    button#restart {
+      padding:10px 14px; border-radius:8px; border:0; cursor:pointer; background:#fff; color:#0b1220; font-weight:700;
+    }
+    .choices-row{display:flex; gap:10px; justify-content:center; margin-top:12px}
+    .cpu-choice, .player-choice {font-size:14px; color:var(--muted); margin-top:6px}
+    @media (max-width:720px){
+      .board{flex-direction:column}
+      .scoreboard{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="game" role="application" aria-label="Rock Paper Scissors game">
+    <h1>Rock • Paper • Scissors</h1>
+
+    <div class="instructions" id="instructions">
+      <strong>How to play:</strong>
+      Choose Rock, Paper, or Scissors. Rock beats Scissors, Scissors beats Paper, Paper beats Rock.
+      First player to <strong>5 points</strong> wins the match. You can also use keyboard shortcuts:
+      <kbd>R</kbd> = Rock, <kbd>P</kbd> = Paper, <kbd>S</kbd> = Scissors.
+    </div>
+
+    <div class="board">
+      <div class="play-area" aria-live="polite">
+        <div style="text-align:center">
+          <div class="choices-row">
+            <div>
+              <div class="small">Your choice</div>
+              <div id="playerChoice" class="player-choice">—</div>
+            </div>
+            <div>
+              <div class="small">Computer choice</div>
+              <div id="computerChoice" class="cpu-choice">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls" role="group" aria-label="Game choices">
+          <button class="choice" data-choice="rock" id="btnRock">✊ Rock</button>
+          <button class="choice" data-choice="paper" id="btnPaper">🖐️ Paper</button>
+          <button class="choice" data-choice="scissors" id="btnScissors">✌️ Scissors</button>
+        </div>
+
+        <div class="result" id="roundResult" aria-live="assertive">Make your move!</div>
+
+        <div class="status-row">
+          <div class="small">First to <strong>5</strong> wins</div>
+          <div class="small">Tip: keys R / P / S also play</div>
+        </div>
+
+        <div class="footer">
+          <button id="restart" title="Restart match">Restart</button>
+        </div>
+      </div>
+
+      <div class="scoreboard" aria-hidden="false">
+        <h2>Scoreboard</h2>
+        <div class="score" id="scoreText">You 0 : 0 CPU</div>
+        <div class="message" id="messageBox">Good luck!</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // Game logic
+  (function(){
+    const choices = ['rock','paper','scissors'];
+    const winScore = 5;
+
+    let playerScore = 0;
+    let cpuScore = 0;
+    let finished = false;
+
+    const btnRock = document.getElementById('btnRock');
+    const btnPaper = document.getElementById('btnPaper');
+    const btnScissors = document.getElementById('btnScissors');
+    const restartBtn = document.getElementById('restart');
+
+    const playerChoiceEl = document.getElementById('playerChoice');
+    const cpuChoiceEl = document.getElementById('computerChoice');
+    const scoreText = document.getElementById('scoreText');
+    const messageBox = document.getElementById('messageBox');
+    const roundResult = document.getElementById('roundResult');
+
+    function computerPick(){
+      return choices[Math.floor(Math.random()*choices.length)];
+    }
+
+    function determineWinner(player, cpu){
+      if(player === cpu) return 'tie';
+      if((player === 'rock' && cpu === 'scissors') ||
+         (player === 'paper' && cpu === 'rock') ||
+         (player === 'scissors' && cpu === 'paper')) return 'player';
+      return 'cpu';
+    }
+
+    function choiceIcon(c){
+      if(c === 'rock') return '✊ Rock';
+      if(c === 'paper') return '🖐️ Paper';
+      if(c === 'scissors') return '✌️ Scissors';
+      return '—';
+    }
+
+    function updateUI(){
+      scoreText.textContent = `You ${playerScore} : ${cpuScore} CPU`;
+      if(playerScore >= winScore){
+        messageBox.textContent = 'You won the match! 🎉';
+        messageBox.className = 'message win';
+      } else if(cpuScore >= winScore){
+        messageBox.textContent = 'CPU won the match. Try again!';
+        messageBox.className = 'message lose';
+      } else {
+        messageBox.textContent = 'Play a round — first to ' + winScore + ' wins.';
+        messageBox.className = 'message';
+      }
+    }
+
+    function disableChoices(val){
+      [btnRock, btnPaper, btnScissors].forEach(b => b.disabled = val);
+      if(val) {
+        [btnRock, btnPaper, btnScissors].forEach(b => b.style.opacity = '0.6');
+      } else {
+        [btnRock, btnPaper, btnScissors].forEach(b => b.style.opacity = '1');
+      }
+    }
+
+    function playRound(playerChoice){
+      if(finished) return;
+      const cpuChoice = computerPick();
+
+      playerChoiceEl.textContent = choiceIcon(playerChoice);
+      cpuChoiceEl.textContent = choiceIcon(cpuChoice);
+
+      const winner = determineWinner(playerChoice, cpuChoice);
+      if(winner === 'tie'){
+        roundResult.textContent = "It's a tie.";
+        roundResult.className = 'result tie';
+      } else if(winner === 'player'){
+        playerScore++;
+        roundResult.textContent = "You win this round!";
+        roundResult.className = 'result win';
+      } else {
+        cpuScore++;
+        roundResult.textContent = "CPU wins this round.";
+        roundResult.className = 'result lose';
+      }
+
+      updateUI();
+
+      // check end condition
+      if(playerScore >= winScore || cpuScore >= winScore){
+        finished = true;
+        disableChoices(true);
+        // small visual emphasis
+        setTimeout(()=>{
+          if(playerScore >= winScore) {
+            roundResult.textContent = "Match over — You won! 🎉";
+            roundResult.className = 'result win';
+          } else {
+            roundResult.textContent = "Match over — CPU won.";
+            roundResult.className = 'result lose';
+          }
+        }, 350);
+      }
+    }
+
+    // attach handlers
+    btnRock.addEventListener('click', ()=> playRound('rock'));
+    btnPaper.addEventListener('click', ()=> playRound('paper'));
+    btnScissors.addEventListener('click', ()=> playRound('scissors'));
+
+    restartBtn.addEventListener('click', resetGame);
+
+    // keyboard shortcuts R / P / S (case-insensitive)
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'r' || e.key === 'R') { if(!finished) playRound('rock'); }
+      if(e.key === 'p' || e.key === 'P') { if(!finished) playRound('paper'); }
+      if(e.key === 's' || e.key === 'S') { if(!finished) playRound('scissors'); }
+      if(e.key === 'Enter' && finished) resetGame();
+    });
+
+    function resetGame(){
+      playerScore = 0; cpuScore = 0; finished = false;
+      playerChoiceEl.textContent = '—';
+      cpuChoiceEl.textContent = '—';
+      roundResult.textContent = 'Make your move!';
+      roundResult.className = 'result';
+      messageBox.textContent = 'Play a round — first to ' + winScore + ' wins.';
+      messageBox.className = 'message';
+      updateUI();
+      disableChoices(false);
+    }
+
+    // init
+    resetGame();
+  })();
+</script>
+</body>
+</html>
