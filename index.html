@@ -1,6 +1,4 @@
 <!DOCTYPE html>
-
-
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -73,6 +71,135 @@
       margin-top: 10px;
       text-align: center;
     }
+
+    /* 🎮 Game styles */
+    :root {
+      --bg1: #cce5ff;
+      --bg2: #e6ccff;
+      --bg3: #ffe6cc;
+      --card: rgba(255,255,255,0.6);
+      --accent: #4d94ff;
+      --muted: #666666;
+      --win: #28a745;
+      --lose: #ff4d6d;
+    }
+
+    .game-container {
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .game {
+      width: 100%;
+      max-width: 760px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      color: #333;
+    }
+
+    .game h1 {
+      margin: 0 0 10px 0;
+      font-size: 22px;
+      text-align: center;
+      color: #333;
+    }
+
+    .instructions {
+      background: rgba(255, 255, 255, 0.6);
+      padding: 12px 14px;
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 14px;
+    }
+
+    .board { display: flex; gap: 18px; align-items: flex-start; }
+    .play-area {
+      flex: 1;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
+    }
+
+    .scoreboard {
+      width: 220px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .scoreboard h2 { margin: 0 0 8px 0; font-size: 16px; }
+    .score { font-size: 28px; margin: 6px 0; color: var(--accent); font-weight: 600; }
+
+    .result {
+      margin-top: 10px;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+
+    .controls { display: flex; gap: 10px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+    button.choice {
+      background: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(230,230,230,0.8));
+      border: 1px solid rgba(0,0,0,0.1);
+      color: #333;
+      padding: 12px 18px;
+      font-size: 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      min-width: 110px;
+      transition: all 0.3s ease;
+    }
+    button.choice:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 0 15px rgba(77, 148, 255, 0.6);
+    }
+    button.choice:active {
+      transform: scale(0.95);
+      box-shadow: 0 0 10px rgba(77, 148, 255, 0.8);
+    }
+
+    .small { font-size: 13px; color: var(--muted); }
+    .status-row { display: flex; gap: 12px; justify-content: space-between; align-items: center; margin-top: 12px; }
+
+    .message {
+      font-size: 15px;
+      text-align: center;
+      padding: 10px 12px;
+      border-radius: 8px;
+    }
+
+    .win { background: rgba(40, 167, 69, 0.15); color: var(--win); }
+    .lose { background: rgba(255, 77, 109, 0.15); color: var(--lose); }
+    .tie  { background: rgba(77, 148, 255, 0.15); color: var(--accent); }
+
+    .footer { margin-top: 14px; display: flex; gap: 8px; justify-content: center; align-items: center; }
+    button#restart {
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 0;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      transition: background 0.3s ease;
+    }
+    button#restart:hover { background: #3366cc; }
+
+    .choices-row { display: flex; gap: 10px; justify-content: center; margin-top: 12px; }
+    .cpu-choice, .player-choice { font-size: 14px; color: var(--muted); margin-top: 6px; }
+
+    @media (max-width:720px){
+      .board { flex-direction: column }
+      .scoreboard { width: 100% }
+    }
   </style>
 </head>
 <body>
@@ -122,8 +249,163 @@
     <p class="quote">✨ “Every expert was once a beginner — and I’m on my journey to grow as a programmer.”</p>
   </section>
 
+  <!-- 🎮 Game Section -->
+  <section>
+    <h2>🎮 My Game: Rock Paper Scissors</h2>
+    <div class="game-container">
+      <div class="game" role="application" aria-label="Rock Paper Scissors game">
+        <h1>Rock • Paper • Scissors</h1>
+        <div class="instructions">
+          <strong>How to play:</strong>
+          Choose Rock, Paper, or Scissors. Rock beats Scissors, Scissors beats Paper, Paper beats Rock.
+          First player to <strong>5 points</strong> wins. You can also use keyboard shortcuts:
+          <kbd>R</kbd> = Rock, <kbd>P</kbd> = Paper, <kbd>S</kbd> = Scissors.
+        </div>
+        <div class="board">
+          <div class="play-area" aria-live="polite">
+            <div style="text-align:center">
+              <div class="choices-row">
+                <div>
+                  <div class="small">Your choice</div>
+                  <div id="playerChoice" class="player-choice">—</div>
+                </div>
+                <div>
+                  <div class="small">Computer choice</div>
+                  <div id="computerChoice" class="cpu-choice">—</div>
+                </div>
+              </div>
+            </div>
+            <div class="controls">
+              <button class="choice" data-choice="rock" id="btnRock">✊ Rock</button>
+              <button class="choice" data-choice="paper" id="btnPaper">🖐️ Paper</button>
+              <button class="choice" data-choice="scissors" id="btnScissors">✌️ Scissors</button>
+            </div>
+            <div class="result" id="roundResult" aria-live="assertive">Make your move!</div>
+            <div class="status-row">
+              <div class="small">First to <strong>5</strong> wins</div>
+              <div class="small">Tip: keys R / P / S also play</div>
+            </div>
+            <div class="footer">
+              <button id="restart">Restart</button>
+            </div>
+          </div>
+          <div class="scoreboard">
+            <h2>Scoreboard</h2>
+            <div class="score" id="scoreText">You 0 : 0 CPU</div>
+            <div class="message" id="messageBox">Good luck!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <footer>
     &copy; 2025 Romana Akter | Built with 💙
   </footer>
+
+<script>
+  // Game logic
+  (function(){
+    const choices = ['rock','paper','scissors'];
+    const winScore = 5;
+    let playerScore = 0, cpuScore = 0, finished = false;
+
+    const btnRock = document.getElementById('btnRock');
+    const btnPaper = document.getElementById('btnPaper');
+    const btnScissors = document.getElementById('btnScissors');
+    const restartBtn = document.getElementById('restart');
+
+    const playerChoiceEl = document.getElementById('playerChoice');
+    const cpuChoiceEl = document.getElementById('computerChoice');
+    const scoreText = document.getElementById('scoreText');
+    const messageBox = document.getElementById('messageBox');
+    const roundResult = document.getElementById('roundResult');
+
+    function computerPick(){
+      return choices[Math.floor(Math.random()*choices.length)];
+    }
+    function determineWinner(player, cpu){
+      if(player === cpu) return 'tie';
+      if((player === 'rock' && cpu === 'scissors') ||
+         (player === 'paper' && cpu === 'rock') ||
+         (player === 'scissors' && cpu === 'paper')) return 'player';
+      return 'cpu';
+    }
+    function choiceIcon(c){
+      if(c === 'rock') return '✊ Rock';
+      if(c === 'paper') return '🖐️ Paper';
+      if(c === 'scissors') return '✌️ Scissors';
+      return '—';
+    }
+    function updateUI(){
+      scoreText.textContent = `You ${playerScore} : ${cpuScore} CPU`;
+      if(playerScore >= winScore){
+        messageBox.textContent = 'You won the match! 🎉';
+        messageBox.className = 'message win';
+      } else if(cpuScore >= winScore){
+        messageBox.textContent = 'CPU won the match. Try again!';
+        messageBox.className = 'message lose';
+      } else {
+        messageBox.textContent = 'Play a round — first to ' + winScore + ' wins.';
+        messageBox.className = 'message';
+      }
+    }
+    function disableChoices(val){
+      [btnRock, btnPaper, btnScissors].forEach(b => b.disabled = val);
+      [btnRock, btnPaper, btnScissors].forEach(b => b.style.opacity = val ? '0.6' : '1');
+    }
+    function playRound(playerChoice){
+      if(finished) return;
+      const cpuChoice = computerPick();
+      playerChoiceEl.textContent = choiceIcon(playerChoice);
+      cpuChoiceEl.textContent = choiceIcon(cpuChoice);
+
+      const winner = determineWinner(playerChoice, cpuChoice);
+      if(winner === 'tie'){
+        roundResult.textContent = "It's a tie.";
+        roundResult.className = 'result tie';
+      } else if(winner === 'player'){
+        playerScore++;
+        roundResult.textContent = "You win this round!";
+        roundResult.className = 'result win';
+      } else {
+        cpuScore++;
+        roundResult.textContent = "CPU wins this round.";
+        roundResult.className = 'result lose';
+      }
+      updateUI();
+      if(playerScore >= winScore || cpuScore >= winScore){
+        finished = true;
+        disableChoices(true);
+      }
+    }
+
+    btnRock.addEventListener('click', ()=> playRound('rock'));
+    btnPaper.addEventListener('click', ()=> playRound('paper'));
+    btnScissors.addEventListener('click', ()=> playRound('scissors'));
+    restartBtn.addEventListener('click', resetGame);
+
+    document.addEventListener('keydown', (e)=>{
+      if(e.key.toLowerCase() === 'r') playRound('rock');
+      if(e.key.toLowerCase() === 'p') playRound('paper');
+      if(e.key.toLowerCase() === 's') playRound('scissors');
+      if(e.key === 'Enter' && finished) resetGame();
+    });
+
+    function resetGame(){
+      playerScore = 0; cpuScore = 0; finished = false;
+      playerChoiceEl.textContent = '—';
+      cpuChoiceEl.textContent = '—';
+      roundResult.textContent = 'Make your move!';
+      roundResult.className = 'result';
+      messageBox.textContent = 'Play a round — first to ' + winScore + ' wins.';
+      messageBox.className = 'message';
+      updateUI();
+      disableChoices(false);
+    }
+
+    resetGame();
+  })();
+</script>
 </body>
 </html>
