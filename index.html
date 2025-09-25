@@ -2,211 +2,142 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Romana Akter - Gaming Portfolio</title>
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <title>Whack a Dino!</title>
   <style>
-    /* Global reset */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
-      font-family: 'Orbitron', sans-serif;
-      background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1e1e2f);
-      background-size: 400% 400%;
-      animation: gradientShift 15s ease infinite;
-      color: #f1f5f9;
-      line-height: 1.6;
-    }
-
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    header {
       text-align: center;
-      padding: 50px 20px;
-      background: rgba(20, 20, 40, 0.7);
-      border-bottom: 2px solid #38bdf8;
-      animation: fadeIn 2s ease;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1e1e2f, #302b63, #0f0c29);
+      color: #fff;
+      height: 100vh;
+      margin: 0;
     }
-
-    header h1 {
-      font-size: 2.5em;
+    h1 {
+      margin: 20px;
       color: #38bdf8;
       text-shadow: 0 0 10px #38bdf8, 0 0 20px #00f7ff;
-      animation: glow 2s ease-in-out infinite alternate;
     }
-
-    @keyframes glow {
-      from { text-shadow: 0 0 5px #38bdf8; }
-      to { text-shadow: 0 0 20px #00f7ff, 0 0 30px #38bdf8; }
-    }
-
-    header p {
-      margin-top: 10px;
-      font-size: 1.1em;
-      color: #cbd5e1;
-    }
-
-    section {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 20px;
-      animation: slideUp 1.5s ease;
-    }
-
-    @keyframes slideUp {
-      from { transform: translateY(30px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    h2 {
-      font-size: 1.6em;
-      margin-bottom: 15px;
-      color: #00f7ff;
-      text-transform: uppercase;
-      text-shadow: 0 0 8px #00f7ff;
-      border-bottom: 2px solid #38bdf8;
-      padding-bottom: 5px;
-    }
-
-    ul { list-style: none; padding: 0; }
-    ul li { margin: 8px 0; font-size: 1.05em; }
-
-    a {
-      color: #00f7ff;
-      text-decoration: none;
-      transition: all 0.3s ease;
-    }
-    a:hover {
-      color: #ff4dff;
-      text-shadow: 0 0 10px #ff4dff;
-    }
-
-    .stats img {
-      max-width: 100%;
-      border-radius: 8px;
-      margin: 10px 0;
-      transition: transform 0.3s ease;
-    }
-    .stats img:hover { transform: scale(1.05); }
-
-    /* Game Section */
-    .game-link {
-      display: flex;
+    #game {
+      display: grid;
+      grid-template-columns: repeat(3, 120px);
+      grid-gap: 20px;
       justify-content: center;
-      margin: 30px 0;
+      margin: 20px auto;
     }
-    .game-btn {
-      font-family: 'Press Start 2P', cursive;
-      padding: 14px 22px;
-      font-size: 14px;
-      background: #0f0;
-      border: none;
-      border-radius: 10px;
-      color: #000;
-      cursor: pointer;
-      box-shadow: 0 0 10px #0f0, 0 0 20px #0f0 inset;
-      transition: all 0.3s ease;
-    }
-    .game-btn:hover {
-      background: #1aff1a;
-      box-shadow: 0 0 20px #0f0, 0 0 40px #0f0 inset;
-      transform: scale(1.05);
-    }
-
-    .quote {
-      font-style: italic;
-      color: #ff4dff;
-      text-align: center;
-      margin-top: 20px;
-      font-family: 'Press Start 2P', cursive;
-      font-size: 0.9em;
-      animation: typing 5s steps(40, end) infinite alternate;
-      white-space: nowrap;
+    .hole {
+      width: 120px;
+      height: 120px;
+      background: #222;
+      border-radius: 50%;
+      position: relative;
       overflow: hidden;
-      border-right: 2px solid #ff4dff;
-      display: inline-block;
     }
-
-    @keyframes typing {
-      from { width: 0; }
-      to { width: 100%; }
+    .dino {
+      width: 80px;
+      height: 80px;
+      background: orange;
+      border-radius: 50%;
+      position: absolute;
+      bottom: -100px;
+      left: 20px;
+      transition: bottom 0.3s;
+      cursor: pointer;
+      box-shadow: 0 0 10px #000;
     }
-
-    footer {
-      text-align: center;
-      padding: 20px;
-      margin-top: 40px;
-      background: rgba(20, 20, 40, 0.8);
-      font-size: 0.9em;
-      color: #94a3b8;
-      border-top: 2px solid #38bdf8;
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      background: #38bdf8;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #000;
+      box-shadow: 0 0 10px #38bdf8, 0 0 20px #00f7ff;
     }
-    footer:hover {
-      text-shadow: 0 0 10px #38bdf8;
+    button:hover {
+      background: #00f7ff;
+      transform: scale(1.05);
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Romana Akter</h1>
-    <p>Aspiring Programmer | Gamer | From Bangladesh</p>
-    <p>21 years old • Passionate about learning programming</p>
-  </header>
+  <h1>🦖 Whack a Dino!</h1>
+  <p>Score: <span id="score">0</span> | Time: <span id="time">60</span>s</p>
+  <div id="game"></div>
+  <button onclick="startGame()">▶ START!</button>
 
-  <section>
-    <h2>🌟 About Me</h2>
-    <ul>
-      <li>🎓 Completed SSC and HSC in Bangladesh</li>
-      <li>📚 Currently studying at <strong>Dong-A University</strong></li>
-      <li>🌱 Learning programming basics (C, Python, Web Development, etc.)</li>
-      <li>💡 Interested in building small projects to practice my skills</li>
-      <li>📬 Reach me at: <a href="mailto:akterromana98ps@gmail.com">akterromana98ps@gmail.com</a></li>
-    </ul>
+  <!-- Sound -->
+  <audio id="hitSound">
+    <source src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" type="audio/ogg">
+  </audio>
 
-    <h2>🚀 Skills</h2>
-    <ul>
-      <li>💻 Programming: Python, C (beginner level)</li>
-      <li>🌐 Web Development: HTML, CSS</li>
-      <li>⚡ Version Control: Git & GitHub basics</li>
-      <li>🎨 Other Interests: Sketching & Cooking</li>
-    </ul>
+  <script>
+    const game = document.getElementById("game");
+    const scoreDisplay = document.getElementById("score");
+    const timeDisplay = document.getElementById("time");
+    const hitSound = document.getElementById("hitSound");
 
-    <h2>📂 My Goals</h2>
-    <ul>
-      <li>✔️ Build simple projects (games, apps, websites)</li>
-      <li>✔️ Contribute to open-source in the future</li>
-      <li>✔️ Keep improving through consistent practice</li>
-    </ul>
+    let score = 0;
+    let time = 60;
+    let timer;
+    let dinoTimer;
 
-    <h2>📊 GitHub Stats</h2>
-    <div class="stats">
-      <img src="https://github-readme-stats.vercel.app/api?username=romanax044&show_icons=true&theme=radical" alt="GitHub Stats">
-      <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=romanax044&layout=compact&theme=radical" alt="Top Languages">
-    </div>
+    const colors = ["orange", "red", "yellow", "blue", "purple", "pink", "lime"];
 
-    <h2>🎮 My Games</h2>
-    <div class="game-link">
-      <a href="game3.html" target="_blank">
-        <button class="game-btn">▶ Start Game</button>
-      </a>
-    </div>
+    // Create holes
+    for (let i = 0; i < 6; i++) {
+      let hole = document.createElement("div");
+      hole.classList.add("hole");
+      let dino = document.createElement("div");
+      dino.classList.add("dino");
+      dino.addEventListener("click", () => {
+        if (dino.style.bottom === "20px") {
+          score++;
+          scoreDisplay.textContent = score;
 
-    <h2>🌐 Connect with Me</h2>
-    <ul>
-      <li>📧 Email: <a href="mailto:akterromana98ps@gmail.com">akterromana98ps@gmail.com</a></li>
-      <li>💼 GitHub: <a href="https://github.com/romanax044/Romana-Profile" target="_blank">Romana Profile</a></li>
-    </ul>
+          // Random color change
+          const newColor = colors[Math.floor(Math.random() * colors.length)];
+          dino.style.background = newColor;
 
-    <p class="quote">“Every expert was once a beginner — and I’m on my journey to grow as a programmer.”</p>
-  </section>
+          // Play sound
+          hitSound.currentTime = 0;
+          hitSound.play();
 
-  <footer>
-    &copy; 2025 Romana Akter | Built with 💙 Neon Vibes
-  </footer>
+          // Hide again
+          dino.style.bottom = "-100px";
+        }
+      });
+      hole.appendChild(dino);
+      game.appendChild(hole);
+    }
+
+    function randomDino() {
+      const dinos = document.querySelectorAll(".dino");
+      dinos.forEach(d => d.style.bottom = "-100px");
+      const random = Math.floor(Math.random() * dinos.length);
+      dinos[random].style.bottom = "20px";
+    }
+
+    function startGame() {
+      score = 0;
+      time = 60;
+      scoreDisplay.textContent = score;
+      timeDisplay.textContent = time;
+      clearInterval(timer);
+      clearInterval(dinoTimer);
+
+      timer = setInterval(() => {
+        time--;
+        timeDisplay.textContent = time;
+        if (time <= 0) {
+          clearInterval(timer);
+          clearInterval(dinoTimer);
+          alert("Game Over! Final Score: " + score);
+        }
+      }, 1000);
+
+      dinoTimer = setInterval(randomDino, 800);
+    }
+  </script>
 </body>
 </html>
