@@ -5,129 +5,125 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Romana Akter - Gaming Portfolio</title>
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&family=Roboto+Mono:wght@300;400&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Orbitron', sans-serif;
-      background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1e1e2f);
-      background-size: 400% 400%;
-      animation: gradientShift 15s ease infinite;
-      color: #f1f5f9;
-      line-height: 1.6;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e, #2c003e, #3b0764);
+      background-size: 600% 600%;
+      animation: gradientShift 18s ease infinite;
+      color: #e0e7ff;
+      line-height: 1.7;
     }
+
     @keyframes gradientShift {
       0% { background-position: 0% 50%; }
+      25% { background-position: 50% 50%; }
       50% { background-position: 100% 50%; }
+      75% { background-position: 50% 100%; }
       100% { background-position: 0% 50%; }
     }
+
     header {
       text-align: center;
-      padding: 50px 20px;
-      background: rgba(20, 20, 40, 0.7);
-      border-bottom: 2px solid #38bdf8;
-      animation: fadeIn 2s ease;
+      padding: 60px 20px;
+      background: rgba(20, 20, 40, 0.6);
+      border-bottom: 2px solid #7dd3fc;
+      backdrop-filter: blur(6px);
     }
+
     header h1 {
-      font-size: 2.5em;
-      color: #38bdf8;
-      text-shadow: 0 0 10px #38bdf8, 0 0 20px #00f7ff;
-      animation: glow 2s ease-in-out infinite alternate;
+      font-size: 2.6em;
+      font-family: 'Roboto Mono', monospace;
+      color: #7dd3fc;
+      text-shadow: 0 0 15px #38bdf8, 0 0 30px #2563eb;
     }
-    @keyframes glow {
-      from { text-shadow: 0 0 5px #38bdf8; }
-      to { text-shadow: 0 0 20px #00f7ff, 0 0 30px #38bdf8; }
+
+    header p {
+      margin-top: 12px;
+      font-size: 1.1em;
+      color: #cbd5e1;
     }
-    header p { margin-top: 10px; font-size: 1.1em; color: #cbd5e1; }
-    section { max-width: 900px; margin: 40px auto; padding: 20px; animation: slideUp 1.5s ease; }
+
+    section {
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 20px;
+      background: rgba(30, 30, 50, 0.6);
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+      animation: slideUp 1.5s ease;
+    }
+
     @keyframes slideUp {
-      from { transform: translateY(30px); opacity: 0; }
+      from { transform: translateY(40px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
+
     h2 {
-      font-size: 1.6em;
+      font-size: 1.5em;
       margin-bottom: 15px;
-      color: #00f7ff;
-      text-transform: uppercase;
-      text-shadow: 0 0 8px #00f7ff;
-      border-bottom: 2px solid #38bdf8;
-      padding-bottom: 5px;
+      color: #38bdf8;
+      border-left: 4px solid #38bdf8;
+      padding-left: 10px;
+      font-weight: 500;
     }
+
     ul { list-style: none; padding: 0; }
     ul li { margin: 8px 0; font-size: 1.05em; }
-    a { color: #00f7ff; text-decoration: none; transition: all 0.3s ease; }
-    a:hover { color: #ff4dff; text-shadow: 0 0 10px #ff4dff; }
+
+    a {
+      color: #93c5fd;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+    a:hover {
+      color: #f0abfc;
+      text-shadow: 0 0 8px #f0abfc;
+    }
 
     .stats img {
-      max-width: 100%; border-radius: 8px; margin: 10px 0; transition: transform 0.3s ease;
+      max-width: 100%;
+      border-radius: 10px;
+      margin: 12px 0;
+      transition: transform 0.3s ease;
     }
     .stats img:hover { transform: scale(1.05); }
 
-    /* Game section */
-    .game-container {
-      margin: 30px auto;
-      padding: 20px;
-      background: rgba(20, 20, 40, 0.7);
-      border-radius: 12px;
-      box-shadow: 0 0 20px #38bdf8;
-      text-align: center;
-    }
-    #game {
-      display: grid;
-      grid-template-columns: repeat(3, 120px);
-      grid-gap: 20px;
+    .game-link {
+      display: flex;
       justify-content: center;
-      margin: 20px auto;
-    }
-    .hole {
-      width: 120px;
-      height: 120px;
-      background: #222;
-      border-radius: 50%;
-      position: relative;
-      overflow: hidden;
-    }
-    .dino {
-      width: 80px;
-      height: 80px;
-      background: orange;
-      border-radius: 50%;
-      position: absolute;
-      bottom: -100px;
-      left: 20px;
-      transition: bottom 0.3s;
-      cursor: pointer;
-      box-shadow: 0 0 10px #000;
+      margin: 15px 0;
     }
     .game-btn {
-      font-family: 'Press Start 2P', cursive;
-      padding: 14px 22px;
-      font-size: 14px;
-      background: #0f0;
+      font-family: 'Roboto Mono', monospace;
+      padding: 12px 20px;
+      font-size: 15px;
+      background: #38bdf8;
       border: none;
       border-radius: 10px;
-      color: #000;
+      color: #0f172a;
       cursor: pointer;
-      box-shadow: 0 0 10px #0f0, 0 0 20px #0f0 inset;
-      transition: all 0.3s ease;
+      box-shadow: 0 0 15px #38bdf8;
+      transition: 0.3s;
     }
     .game-btn:hover {
-      background: #1aff1a;
-      box-shadow: 0 0 20px #0f0, 0 0 40px #0f0 inset;
+      background: #0ea5e9;
+      box-shadow: 0 0 25px #38bdf8;
       transform: scale(1.05);
     }
+
     .quote {
-      font-style: italic;
-      color: #ff4dff;
+      margin-top: 25px;
       text-align: center;
-      margin-top: 20px;
-      font-family: 'Press Start 2P', cursive;
-      font-size: 0.9em;
-      animation: typing 5s steps(40, end) infinite alternate;
-      white-space: nowrap; overflow: hidden; border-right: 2px solid #ff4dff; display: inline-block;
+      font-style: italic;
+      color: #f0abfc;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.95em;
     }
-    @keyframes typing { from { width: 0; } to { width: 100%; } }
+
     footer {
       text-align: center;
       padding: 20px;
@@ -179,11 +175,15 @@
     </div>
 
     <h2>🎮 My Games</h2>
-    <div class="game-container">
-      <h3>🦖 Whack a Dino</h3>
-      <p>Score: <span id="score">0</span> | Time: <span id="time">60</span>s</p>
-      <div id="game"></div>
-      <button class="game-btn" onclick="startGame()">▶ START!</button>
+    <div class="game-link">
+      <a href="Whack.a.dino.html" target="_blank">
+        <button class="game-btn">🦖 Play Whack a Dino</button>
+      </a>
+    </div>
+    <div class="game-link">
+      <a href="game3.html" target="_blank">
+        <button class="game-btn">🎮 Play Game 3</button>
+      </a>
     </div>
 
     <h2>🌐 Connect with Me</h2>
@@ -196,76 +196,7 @@
   </section>
 
   <footer>
-    &copy; 2025 Romana Akter | Built with 💙 Neon Vibes
+    &copy; 2025 Romana Akter | Built with 💙 Space Vibes
   </footer>
-
-  <!-- Game Script -->
-  <audio id="hitSound">
-    <source src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" type="audio/ogg">
-  </audio>
-  <script>
-    const game = document.getElementById("game");
-    const scoreDisplay = document.getElementById("score");
-    const timeDisplay = document.getElementById("time");
-    const hitSound = document.getElementById("hitSound");
-
-    let score = 0;
-    let time = 60;
-    let timer;
-    let dinoTimer;
-
-    const colors = ["orange", "red", "yellow", "blue", "purple", "pink", "lime"];
-
-    for (let i = 0; i < 6; i++) {
-      let hole = document.createElement("div");
-      hole.classList.add("hole");
-      let dino = document.createElement("div");
-      dino.classList.add("dino");
-      dino.addEventListener("click", () => {
-        if (dino.style.bottom === "20px") {
-          score++;
-          scoreDisplay.textContent = score;
-
-          const newColor = colors[Math.floor(Math.random() * colors.length)];
-          dino.style.background = newColor;
-
-          hitSound.currentTime = 0;
-          hitSound.play();
-
-          dino.style.bottom = "-100px";
-        }
-      });
-      hole.appendChild(dino);
-      game.appendChild(hole);
-    }
-
-    function randomDino() {
-      const dinos = document.querySelectorAll(".dino");
-      dinos.forEach(d => d.style.bottom = "-100px");
-      const random = Math.floor(Math.random() * dinos.length);
-      dinos[random].style.bottom = "20px";
-    }
-
-    function startGame() {
-      score = 0;
-      time = 60;
-      scoreDisplay.textContent = score;
-      timeDisplay.textContent = time;
-      clearInterval(timer);
-      clearInterval(dinoTimer);
-
-      timer = setInterval(() => {
-        time--;
-        timeDisplay.textContent = time;
-        if (time <= 0) {
-          clearInterval(timer);
-          clearInterval(dinoTimer);
-          alert("Game Over! Final Score: " + score);
-        }
-      }, 1000);
-
-      dinoTimer = setInterval(randomDino, 800);
-    }
-  </script>
 </body>
 </html>
