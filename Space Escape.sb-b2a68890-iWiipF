@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Space Escape — Romana Akter</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-dark: #0b0420; /* deep space purple */
+    --panel: rgba(255,255,255,0.03);
+    --accent: #00f7ff;
+    --neon: #7cffb2;
+    --danger: #ff5c7c;
+    --glass: rgba(255,255,255,0.03);
+  }
+  html,body{height:100%;margin:0;font-family:Orbitron,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  body{
+    background: radial-gradient(1000px 600px at 10% 10%, rgba(90,20,120,0.12), transparent),
+                radial-gradient(800px 500px at 90% 80%, rgba(30,6,80,0.08), transparent),
+                var(--bg-dark);
+    color:#e6eef8;
+    display:flex;flex-direction:column;align-items:center;gap:12px;padding:18px;
+  }
+
+  header{
+    width:100%;max-width:1100px;display:flex;align-items:center;justify-content:space-between;
+    gap:12px;
+  }
+  .title{
+    font-weight:700;font-size:1.15rem;color:var(--accent);text-shadow:0 0 10px rgba(0,247,255,0.18);
+  }
+  .controls{
+    display:flex;gap:8px;align-items:center;
+  }
+  .btn{
+    background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.05);
+    color:#dff7ff;padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:700;
+    box-shadow:0 6px 18px rgba(0,0,0,0.5), inset 0 -2px 6px rgba(0,0,0,0.2);
+    transition:transform .13s ease, box-shadow .13s ease, background .15s ease;
+  }
+  .btn:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,0.6)}
+  .btn.secondary{background:transparent;border:1px dashed rgba(255,255,255,0.04);color:#9fd3ff}
+  .panel{
+    width:100%;max-width:1100px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.03);backdrop-filter: blur(6px);
+    display:flex;gap:12px;align-items:center;justify-content:space-between;
+  }
+  .stats{display:flex;gap:16px;align-items:center;font-size:0.92rem;color:#cbe9ff;}
+  .stat{display:flex;flex-direction:column;gap:2px;}
+  .stat .num{font-weight:900;color:var(--neon);font-size:1.06rem;}
+  #gameBox{width:100%;max-width:1100px;background:transparent;border-radius:12px;overflow:hidden;position:relative;}
+  canvas{display:block;width:100%;height:620px;border-radius:12px;background:linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.18));box-shadow: inset 0 0 80px rgba(0,0,0,0.5);}
+  @media (max-width:720px){
+    canvas{height:520px;}
+    .panel{flex-direction:column;align-items:stretch}
+    header{flex-direction:column;align-items:flex-start}
+  }
+
+  /* HUD over canvas */
+  .hud{position:absolute;left:12px;top:12px;color:#cbe9ff;font-weight:700;text-shadow:0 2px 6px rgba(0,0,0,0.6);display:flex;gap:12px;align-items:center;font-size:0.95rem;}
+  .hud .life{color:var(--danger);font-weight:900}
+  .centerMsg{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);
+    backdrop-filter: blur(6px);
+    width: min(720px, 92%);
+  }
+  .centerMsg h1{margin:0 0 8px 0;color:var(--accent);text-shadow:0 0 14px rgba(0,247,255,0.08)}
+  .centerMsg p{margin:0 0 12px 0;color:#d9eef9}
+  small{color:#99bcd6}
+
+  footer{width:100%;max-width:1100px;margin-top:6px;text-align:center;color:#9fb9d6;font-size:0.85rem;}
+  .credits{opacity:0.9}
+
+  .gridOverlay{position:absolute;inset:0;pointer-events:none;background-image:
+    linear-gradient(transparent 95%, rgba(128,40,160,0.018) 95%),
+    linear-gradient(90deg, transparent 95%, rgba(128,40,160,0.018) 95%);
+    background-size: 80px 80px, 80px 80px;mix-blend-mode:overlay;
+  }
+
+  /* Intro animation */
+  #introScreen{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;animation:fadeInUp .9s ease both}
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .logo{font-family:'Press Start 2P', monospace;color:#ffd3ff;text-shadow:0 0 20px rgba(255,80,255,0.06);font-size:18px}
+  .intro-sub{color:#cdeaff;opacity:.9}
+  .difficulty-select{display:flex;gap:8px;justify-content:center;margin-top:6px}
+  .diff-btn{padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.02);cursor:pointer;font-weight:800}
+  .diff-btn.active{box-shadow:0 0 18px rgba(120,255,200,0.08);border-color:rgba(120,255,200,0.12);color:var(--neon)}
+
+  /* Pause menu overlay */
+  #pauseMenu{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:60;width:min(520px,92%);text-align:center;padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(0,0,0,0.35), rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.03);backdrop-filter:blur(6px)}
+  #pauseMenu h2{color:var(--accent);margin-bottom:8px}
+  .lb-list{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow:auto;padding:6px}
+  .lb-item{display:flex;justify-content:space-between;padding:6px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.02)}
+  .actions-row{display:flex;gap:8px;justify-content:center;margin-top:12px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title">Space Escape — survive the fall</div>
+  <div class="controls">
+    <button id="playBtn" class="btn">Play</button>
+    <button id="pauseBtn" class="btn secondary">Pause</button>
+    <button id="soundBtn" class="btn secondary">Sound: On</button>
+    <button id="downloadBtn" class="btn secondary" title="Export this page as a standalone HTML file">Export</button>
+  </div>
+</header>
+
+<div class="panel">
+  <div class="stats">
+    <div class="stat"><div style="font-size:0.8rem;color:#9fd3ff">Score</div><div id="score" class="num">0</div></div>
+    <div class="stat"><div style="font-size:0.8rem;color:#9fd3ff">High</div><div id="highScore" class="num">0</div></div>
+    <div class="stat"><div style="font-size:0.8rem;color:#9fd3ff">Lives</div><div id="lives" class="num">3</div></div>
+    <div class="stat"><div style="font-size:0.8rem;color:#9fd3ff">Level</div><div id="level" class="num">1</div></div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="font-size:0.9rem;color:#bfe9ff;margin-right:8px">Difficulty:</div>
+    <div id="difficultyControl" style="display:flex;gap:6px">
+      <button class="diff-btn" data-diff="easy">Easy</button>
+      <button class="diff-btn active" data-diff="normal">Normal</button>
+      <button class="diff-btn" data-diff="hard">Hard</button>
+    </div>
+  </div>
+</div>
+
+<div id="gameBox">
+  <canvas id="c"></canvas>
+  <div class="gridOverlay"></div>
+
+  <div class="hud" id="hud">
+    <div id="hudScore">Score: 0</div>
+    <div id="hudLives" style="margin-left:10px">❤ ❤ ❤</div>
+  </div>
+
+  <!-- Intro Screen -->
+  <div id="introScreen" class="centerMsg" style="display:block;">
+    <div class="logo">SPACE ESCAPE</div>
+    <div class="intro-sub">Pilot your ship — avoid falling meteors — survive as long as possible</div>
+    <div style="margin-top:12px">
+      <button id="startBtn" class="btn" style="font-family:'Press Start 2P', monospace;padding:12px 16px">▶ START</button>
+    </div>
+    <div class="difficulty-select" style="margin-top:10px">
+      <button class="diff-btn" data-diff="easy-intro">Easy</button>
+      <button class="diff-btn active" data-diff="normal-intro">Normal</button>
+      <button class="diff-btn" data-diff="hard-intro">Hard</button>
+    </div>
+    <small style="display:block;margin-top:10px">Controls: ← → or A / D — Tap or drag on mobile — Press ENTER to start</small>
+  </div>
+
+  <!-- Pause Menu -->
+  <div id="pauseMenu" style="display:none;">
+    <h2>Paused</h2>
+    <div style="color:#dbefff">Take a break — you can resume or restart</div>
+    <div class="actions-row">
+      <button id="resumeBtn" class="btn">Resume</button>
+      <button id="restartBtn" class="btn">Restart</button>
+    </div>
+
+    <h3 style="margin-top:10px;color:#bfdfff">Leaderboard</h3>
+    <div style="font-size:0.88rem;color:#cfeeff;margin-bottom:6px">Top scores (remote if configured; otherwise local)</div>
+    <div class="lb-list" id="leaderboardList">
+      <!-- filled by JS -->
+    </div>
+
+    <div style="margin-top:10px">
+      <div style="font-size:0.85rem;color:#cfeeff">Submit current score</div>
+      <div style="display:flex;gap:8px;margin-top:6px;align-items:center">
+        <input id="nameInput" placeholder="Your name" style="padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:#e9f8ff;font-weight:700">
+        <button id="submitScoreBtn" class="btn">Submit</button>
+      </div>
+      <small style="display:block;margin-top:8px;color:#9fb9d6">Note: remote leaderboard requires a server API; fallback uses localStorage.</small>
+    </div>
+  </div>
+
+  <!-- Game Over -->
+  <div id="gameOverOverlay" class="centerMsg" style="display:none;">
+    <h1>Game Over</h1>
+    <p id="finalScore">You scored 0</p>
+    <div style="display:flex;gap:8px;justify-content:center">
+      <button id="goRestartBtn" class="btn">Restart</button>
+      <button id="goMenuBtn" class="btn secondary">Main Menu</button>
+    </div>
+    <div style="margin-top:10px"><small>High score stored in your browser (or remote if configured).</small></div>
+  </div>
+</div>
+
+<footer>
+  <div class="credits">Made with ♥ by Romana — remix freely. Remote leaderboard endpoint: <code>/api/leaderboard</code> (POST/GET). See comments in code.</div>
+</footer>
+
+<script>
+/* ============================
+   Space Escape — upgraded full file
+   Includes:
+   - Difficulty selector (Easy / Normal / Hard)
+   - Intro screen (animated)
+   - Pause menu + leaderboard (remote fallback to localStorage)
+   - Export / Download button (creates a standalone HTML file blob)
+   - Dark purple background
+   ============================ */
+
+(() => {
+  // Canvas setup (retina-ready)
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d', { alpha: true });
+  function fitCanvas(){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(rect.width * dpr);
+    canvas.height = Math.floor(rect.height * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  function setCanvasSize(){
+    // ensure canvas fits container CSS size
+    fitCanvas();
+  }
+  window.addEventListener('resize', ()=> setCanvasSize());
+  setCanvasSize();
+
+  // Game variables and defaults
+  let playing = false, paused = false, soundOn = true;
+  let score = 0, highScore = Number(localStorage.getItem('spaceEscapeHigh') || 0);
+  let lives = 3, level = 1;
+  let spawnTimer = 0, spawnIntervalBase = 1100;
+  let lastTime = performance.now();
+  const meteors = [], particles = [], stars = [];
+  const defaultSettings = {
+    easy: { spawnBase: 1400, speedMul: 0.85, lives: 4 },
+    normal: { spawnBase: 1100, speedMul: 1.0, lives: 3 },
+    hard: { spawnBase: 800, speedMul: 1.35, lives: 2 }
+  };
+  let difficulty = 'normal';
+
+  // UI refs
+  const scoreEl = document.getElementById('score');
+  const highEl = document.getElementById('highScore');
+  const livesEl = document.getElementById('lives');
+  const levelEl = document.getElementById('level');
+  const hudScore = document.getElementById('hudScore');
+  const hudLives = document.getElementById('hudLives');
+  const startOverlay = document.getElementById('introScreen');
+  const gameOverOverlay = document.getElementById('gameOverOverlay');
+  const pauseMenu = document.getElementById('pauseMenu');
+  const leaderboardList = document.getElementById('leaderboardList');
+
+  // Player ship
+  const player = { x: 200, y: 0, vx:0, ax:0, width:36, height:46, maxSpeed:420, accel:1800, friction:0.92, angle:0, thrusting:false };
+
+  // Input handling
+  const keys = {};
+  window.addEventListener('keydown', e => { keys[e.key.toLowerCase()]=true; if(e.key===' '){ e.preventDefault(); } });
+  window.addEventListener('keyup', e => { keys[e.key.toLowerCase()]=false; });
+
+  // Pointer dragging
+  let dragging = false, dragStartX=0, playerStartX=0;
+  canvas.addEventListener('pointerdown', e=>{ dragging=true; dragStartX=e.clientX; playerStartX=player.x; canvas.setPointerCapture(e.pointerId); });
+  window.addEventListener('pointermove', e=>{ if(dragging){ const dx=e.clientX-dragStartX; player.x = playerStartX + dx; player.vx = 0; }});
+  window.addEventListener('pointerup', e=>{ dragging=false; });
+
+  // Audio setup
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  const audioCtx = AudioCtx ? new AudioCtx() : null;
+  function unlockAudio(){ if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); }
+  window.addEventListener('pointerdown', unlockAudio, {once:true}); window.addEventListener('keydown', unlockAudio, {once:true});
+
+  // Procedural SFX (same as before, simpler wrappers)
+  function playExplosionSound(){ if(!audioCtx || !soundOn) return; const now=audioCtx.currentTime; const bufferSize=audioCtx.sampleRate*0.18; const buffer=audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); const data=buffer.getChannelData(0); for(let i=0;i<bufferSize;i++){ data[i] = (Math.random()*2-1)*(1 - i/bufferSize)*0.9; } const noise = audioCtx.createBufferSource(); noise.buffer = buffer; const f = audioCtx.createBiquadFilter(); f.type='highpass'; f.frequency.value=700; const g = audioCtx.createGain(); g.gain.value=0.6; noise.connect(f).connect(g).connect(audioCtx.destination); noise.start(now); const o = audioCtx.createOscillator(); o.type='sawtooth'; o.frequency.setValueAtTime(140, now); o.frequency.exponentialRampToValueAtTime(40, now+0.18); const g2 = audioCtx.createGain(); g2.gain.setValueAtTime(0.8, now); g2.gain.exponentialRampToValueAtTime(0.001, now+0.2); o.connect(g2).connect(audioCtx.destination); o.start(now); o.stop(now+0.25); }
+  function playBlip(){ if(!audioCtx || !soundOn) return; const now=audioCtx.currentTime; const o=audioCtx.createOscillator(); o.type='triangle'; o.frequency.setValueAtTime(900, now); o.frequency.exponentialRampToValueAtTime(1200, now+0.06); const g = audioCtx.createGain(); g.gain.setValueAtTime(0.12, now); g.gain.exponentialRampToValueAtTime(0.001, now+0.11); o.connect(g).connect(audioCtx.destination); o.start(now); o.stop(now+0.12); }
+  let thrustOsc=null, thrustGain=null;
+  function startThrustSound(){ if(!audioCtx || !soundOn) return; stopThrustSound(); thrustOsc = audioCtx.createOscillator(); thrustOsc.type='sine'; thrustOsc.frequency.value=180; thrustGain = audioCtx.createGain(); thrustGain.gain.value=0.0001; thrustOsc.connect(thrustGain).connect(audioCtx.destination); thrustOsc.start(); thrustGain.gain.linearRampToValueAtTime(0.06, audioCtx.currentTime + 0.25); }
+  function stopThrustSound(){ if(!audioCtx) return; if(thrustGain){ try{ thrustGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+0.12); setTimeout(()=>{ try{ thrustOsc.stop(); }catch(e){} thrustOsc=null; thrustGain=null; }, 160);}catch(e){} } }
+
+  // Starfield
+  function initStars(count=140){ stars.length=0; const w = canvas.clientWidth || canvas.width; const h = canvas.clientHeight || canvas.height; for(let i=0;i<count;i++){ stars.push({ x: Math.random()*w, y: Math.random()*h, z: Math.random()*1.6 + 0.3, r: Math.random()*1.6 + 0.2, twinkle: Math.random()*1.5 }); } }
+
+  // Meteors & particles
+  function spawnMeteor(){
+    const w = canvas.clientWidth || canvas.width, h = canvas.clientHeight || canvas.height;
+    const size = Math.random()*36 + (6 + Math.min(18, level*2));
+    const x = Math.random()*(w - size) + size/2;
+    const vx = (Math.random()*40-20) * (defaultSettings[difficulty].speedMul + level*0.02);
+    const vy = (60 + Math.random()*120) * (defaultSettings[difficulty].speedMul + level*0.07);
+    const rotation = Math.random()*Math.PI*2;
+    const rotSpeed = (Math.random()*2-1) * 0.02 * (1 + level*0.02);
+    meteors.push({ x, y: -size, vx, vy, size, rotation, rotSpeed, hp: Math.ceil(size/12) });
+  }
+  function spawnExplosion(x,y,color,amount=24){ for(let i=0;i<amount;i++){ const angle=Math.random()*Math.PI*2; const speed=(Math.random()*160 + 60) * (Math.random()<0.5?1:0.6); particles.push({ x,y,vx:Math.cos(angle)*speed, vy:Math.sin(angle)*speed, life:Math.random()*0.9 + 0.6, max:1, size:Math.random()*3+1.4, color, gravity: 220 * (Math.random()*0.8 + 0.6) }); } }
+
+  // collision approximate
+  function checkCollision(ship, meteor){ const r = Math.max(ship.width, ship.height) * 0.42; const dx = ship.x - meteor.x; const dy = ship.y - meteor.y; const dist = Math.hypot(dx, dy); return dist < r + meteor.size*0.6; }
+
+  // HUD update
+  function updateHUD(){ scoreEl.textContent = Math.floor(score); livesEl.textContent = lives; levelEl.textContent = level; highEl.textContent = highScore; hudScore.textContent = `Score: ${Math.floor(score)}`; hudLives.innerHTML = '❤ '.repeat(Math.max(0,lives)); }
+
+  // Reset & start game
+  function applyDifficultySettings(name){
+    difficulty = name;
+    spawnIntervalBase = defaultSettings[name].spawnBase;
+    lives = defaultSettings[name].lives;
+    document.querySelectorAll('.diff-btn').forEach(b => b.classList.toggle('active', b.dataset.diff && b.dataset.diff.includes(name)));
+    updateHUD();
+  }
+
+  function resetGame(){
+    score = 0; level = 1; meteors.length=0; particles.length=0; spawnTimer=0; playing=true; paused=false;
+    applyDifficultySettings(difficulty);
+    lastTime = performance.now();
+    initStars(Math.max(120, Math.floor((canvas.width/ (ctx.getTransform().a || 1) + canvas.height/ (ctx.getTransform().d || 1)) / 10)));
+    player.y = (canvas.clientHeight || canvas.height) * 0.78;
+    player.x = (canvas.clientWidth || canvas.width)/2;
+    player.vx = 0;
+    document.getElementById('pauseBtn').textContent = 'Pause';
+    startOverlay.style.display = 'none';
+    gameOverOverlay.style.display = 'none';
+    pauseMenu.style.display = 'none';
+    updateHUD();
+  }
+
+  function gameOver(){
+    playing=false;
+    stopThrustSound();
+    gameOverOverlay.style.display = 'block';
+    document.getElementById('finalScore').textContent = `You scored ${Math.floor(score)}`;
+    if(Math.floor(score) > highScore){ highScore = Math.floor(score); localStorage.setItem('spaceEscapeHigh', highScore); highEl.textContent = highScore; }
+  }
+
+  // Buttons
+  document.getElementById('playBtn').addEventListener('click', ()=> { if(!playing){ resetGame(); } paused=false; document.getElementById('pauseBtn').textContent='Pause'; });
+  document.getElementById('pauseBtn').addEventListener('click', ()=> {
+    if(!playing) return;
+    paused = !paused;
+    if(paused){ document.getElementById('pauseBtn').textContent='Resume'; pauseMenu.style.display='block'; document.getElementById('resumeBtn').focus(); stopThrustSound(); } else { document.getElementById('pauseBtn').textContent='Pause'; pauseMenu.style.display='none'; if(player.thrusting) startThrustSound(); lastTime = performance.now(); }
+    loadLeaderboardUI();
+  });
+  document.getElementById('soundBtn').addEventListener('click', ()=> { soundOn = !soundOn; document.getElementById('soundBtn').textContent = `Sound: ${soundOn?'On':'Off'}`; if(!soundOn) stopThrustSound(); });
+
+  // Difficulty control in panel
+  document.querySelectorAll('#difficultyControl .diff-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> {
+      document.querySelectorAll('#difficultyControl .diff-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const d = btn.dataset.diff;
+      if(d) applyDifficultySettings(d);
+    });
+  });
+  // difficulty on intro screen
+  document.querySelectorAll('#introScreen .diff-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('#introScreen .diff-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const d = (btn.dataset.diff||'normal-intro').split('-')[0];
+      applyDifficultySettings(d);
+    });
+  });
+
+  document.getElementById('startBtn').addEventListener('click', ()=> { resetGame(); });
+  document.getElementById('resumeBtn').addEventListener('click', ()=> { paused=false; pauseMenu.style.display='none'; document.getElementById('pauseBtn').textContent='Pause'; lastTime = performance.now(); if(player.thrusting) startThrustSound(); });
+  document.getElementById('restartBtn').addEventListener('click', ()=> { resetGame(); });
+  document.getElementById('goRestartBtn').addEventListener('click', ()=> { resetGame(); });
+  document.getElementById('goMenuBtn').addEventListener('click', ()=> { playing=false; startOverlay.style.display='block'; gameOverOverlay.style.display='none'; });
+
+  // Leaderboard: remote endpoint fallback to localStorage
+  // Expected remote API:
+  // GET  /api/leaderboard  -> returns [{name,score,date}, ...]
+  // POST /api/leaderboard  body: {name,score} -> returns saved entry
+  const remoteLeaderboardUrl = '/api/leaderboard'; // replace with your server endpoint if you have one
+
+  async function fetchRemoteLeaderboard(){
+    try{
+      const res = await fetch(remoteLeaderboardUrl);
+      if(!res.ok) throw new Error('no remote');
+      return await res.json();
+    }catch(e){
+      // fallback to local storage
+      const raw = localStorage.getItem('localLeaderboard') || '[]';
+      return JSON.parse(raw);
+    }
+  }
+  async function submitRemoteScore(name, scoreVal){
+    // Try remote POST, if fails write to localStorage fallback
+    const entry = { name: name||'Anon', score: Math.floor(scoreVal), date: new Date().toISOString() };
+    try{
+      const res = await fetch(remoteLeaderboardUrl, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(entry) });
+      if(!res.ok) throw new Error('remote-post-failed');
+      const json = await res.json();
+      return json;
+    }catch(e){
+      // fallback store to local list
+      const raw = localStorage.getItem('localLeaderboard') || '[]';
+      const arr = JSON.parse(raw);
+      arr.push(entry);
+      arr.sort((a,b)=>b.score-a.score);
+      localStorage.setItem('localLeaderboard', JSON.stringify(arr.slice(0,50)));
+      return entry;
+    }
+  }
+
+  async function loadLeaderboardUI(){
+    leaderboardList.innerHTML = '<div style="opacity:0.8;padding:8px">Loading…</div>';
+    const arr = await fetchRemoteLeaderboard();
+    // sort & show top 10
+    arr.sort((a,b)=>b.score - a.score);
+    const top = (arr || []).slice(0,10);
+    if(top.length === 0) leaderboardList.innerHTML = '<div style="opacity:0.7;padding:8px">No scores yet</div>';
+    else {
+      leaderboardList.innerHTML = '';
+      top.forEach((it, idx)=>{
+        const el = document.createElement('div'); el.className='lb-item';
+        el.innerHTML = `<div style="font-weight:800">${idx+1}. ${escapeHtml(it.name || 'Anon')}</div><div style="opacity:0.9">${it.score}</div>`;
+        leaderboardList.appendChild(el);
+      });
+    }
+  }
+
+  // Submit score
+  document.getElementById('submitScoreBtn').addEventListener('click', async ()=>{
+    const name = (document.getElementById('nameInput').value || 'Anon').slice(0,30);
+    const entry = await submitRemoteScore(name, Math.floor(score));
+    alert(`Score saved: ${entry.name || name} — ${entry.score}`);
+    loadLeaderboardUI();
+  });
+
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  // Export / Download current page as a standalone HTML file:
+  document.getElementById('downloadBtn').addEventListener('click', ()=>{
+    // We generate the current document's HTML string and download as .html
+    const docHtml = `<!doctype html>\n` + document.documentElement.outerHTML;
+    const blob = new Blob([docHtml], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'space-escape.html';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=> URL.revokeObjectURL(url), 2000);
+  });
+
+  // Starfield & visuals initialization
+  function initStars(count=140){ stars.length=0; const w = canvas.clientWidth || canvas.width; const h = canvas.clientHeight || canvas.height; for(let i=0;i<count;i++){ stars.push({ x: Math.random()*w, y: Math.random()*h, z: Math.random()*1.6 + 0.3, r: Math.random()*1.6 + 0.2, twinkle: Math.random()*1.5 }); } }
+
+  // Render helpers (ship/meteors/particles) - see previous code for detailed visuals
+  function drawShip(ctx, x, y, w, h, angle, thrust){
+    ctx.save(); ctx.translate(x,y); ctx.rotate(angle);
+    ctx.beginPath(); ctx.moveTo(0, -h*0.6); ctx.lineTo(w*0.6, h*0.5); ctx.lineTo(0, h*0.2); ctx.lineTo(-w*0.6, h*0.5); ctx.closePath();
+    const grd = ctx.createLinearGradient(0, -h*0.6, 0, h*0.5); grd.addColorStop(0, 'rgba(255,255,255,0.95)'); grd.addColorStop(1, 'rgba(150,200,255,0.06)'); ctx.fillStyle = grd; ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(0,247,255,0.9)'; ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(0, -h*0.2, w*0.28, h*0.18, 0,0,Math.PI*2); ctx.fillStyle='rgba(10,20,40,0.95)'; ctx.fill(); ctx.lineWidth=1; ctx.strokeStyle='rgba(120,200,255,0.9)'; ctx.stroke();
+    if(thrust){ const t = Math.random()*0.4+0.75; ctx.beginPath(); ctx.moveTo(-w*0.28, h*0.5); ctx.quadraticCurveTo(0, h*0.9*t, w*0.28, h*0.5); ctx.closePath(); const fg = ctx.createLinearGradient(0, h*0.5, 0, h*1.2); fg.addColorStop(0, 'rgba(255,200,80,0.9)'); fg.addColorStop(0.5,'rgba(255,80,50,0.8)'); fg.addColorStop(1,'rgba(255,30,80,0.06)'); ctx.fillStyle=fg; ctx.fill(); }
+    ctx.restore();
+  }
+
+  // Main game loop
+  function render(now = performance.now()){
+    requestAnimationFrame(render);
+    const dt = Math.min((now - lastTime)/1000, 0.04); lastTime = now;
+    if(!playing){ // when not playing, we still draw a quiet frame
+      drawFrame(dt); return;
+    }
+    if(paused){ drawFrame(dt); return; }
+
+    // input
+    let move = 0; if(keys['arrowleft']||keys['a']) move = -1; if(keys['arrowright']||keys['d']) move = 1;
+
+    // apply movement or dragging
+    if(dragging){ player.thrusting=false; } else if(move!==0){ player.ax = move * player.accel; player.thrusting=true; } else { player.ax = 0; player.thrusting=false; }
+
+    player.vx += player.ax * dt; player.vx *= Math.pow(player.friction, dt*60); player.vx = Math.max(-player.maxSpeed, Math.min(player.maxSpeed, player.vx));
+    player.x += player.vx * dt;
+
+    const w = canvas.clientWidth || canvas.width;
+    player.x = Math.max(player.width*0.5, Math.min(w - player.width*0.5, player.x));
+
+    if(player.thrusting && soundOn) startThrustSound(); else stopThrustSound();
+
+    // spawning
+    spawnTimer += dt*1000;
+    const desiredInterval = Math.max(250, spawnIntervalBase - level*60 - Math.floor(score/50)*6);
+    if(spawnTimer > desiredInterval){ spawnTimer = 0; spawnMeteor(); if(Math.random() < Math.min(0.12 + level*0.01, 0.45)) spawnMeteor(); }
+
+    // update meteors
+    for(let i=meteors.length-1;i>=0;i--){
+      const m = meteors[i];
+      m.x += m.vx * dt; m.y += m.vy * dt; m.rotation += m.rotSpeed;
+      if(m.y - m.size > (canvas.clientHeight || canvas.height) + 100){ meteors.splice(i,1); score += 1 * level; continue; }
+      if(checkCollision(player, m)){
+        meteors.splice(i,1);
+        spawnExplosion(m.x,m.y,'rgba(255,160,80,0.95)',28);
+        playExplosionSound();
+        lives--; updateHUD();
+        if(lives <= 0){ gameOver(); return; }
+      }
+    }
+
+    // update particles
+    for(let i=particles.length-1;i>=0;i--){
+      const p = particles[i]; p.vy += p.gravity * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt; if(p.life<=0) particles.splice(i,1);
+    }
+
+    // scoring & level
+    score += dt * (1 + level*0.2) * 12;
+    const newLevel = Math.floor(score / 500) + 1;
+    if(newLevel > level){ level = newLevel; playBlip(); spawnExplosion(player.x, player.y-30, 'rgba(120,255,220,0.9)', 18); }
+
+    updateHUD();
+    drawFrame(dt);
+  }
+
+  // Frame drawing
+  function drawFrame(dt){
+    fitCanvas();
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const w = canvas.clientWidth || canvas.width, h = canvas.clientHeight || canvas.height;
+
+    // starfield
+    ctx.save();
+    const px = (player.x - w/2) * 0.0008;
+    for(let i=0;i<stars.length;i++){
+      const s = stars[i];
+      const sx = (s.x + px * (s.z*60)) % w;
+      const sy = (s.y + (performance.now()*0.00002*s.z*30)) % h;
+      const alpha = 0.6 * (1 - s.z/2) * (0.4 + 0.6*Math.abs(Math.sin(performance.now()*0.0015 + s.twinkle)));
+      ctx.beginPath(); ctx.fillStyle = `rgba(200,230,255,${alpha.toFixed(3)})`; ctx.arc(sx, sy, s.r * (1 + 0.6*s.z), 0, Math.PI*2); ctx.fill();
+    }
+    ctx.restore();
+
+    // nebula overlay
+    const g = ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,'rgba(12,6,22,0.02)'); g.addColorStop(1,'rgba(4,2,10,0.06)'); ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+
+    // meteors draw
+    for(const m of meteors){
+      ctx.save(); ctx.translate(m.x, m.y); ctx.rotate(m.rotation);
+      const r = m.size;
+      const grad = ctx.createRadialGradient(-r*0.2,-r*0.2, r*0.1, 0,0,r);
+      grad.addColorStop(0,'rgba(255,210,140,0.95)'); grad.addColorStop(0.2,'rgba(255,160,90,0.9)'); grad.addColorStop(1,'rgba(90,60,40,0.95)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      // polygon-ish
+      const spikes = 10;
+      for(let i=0;i<spikes;i++){
+        const a = i/spikes * Math.PI*2;
+        const rad = r * (0.7 + Math.sin(i*3.1 + m.x*m.y)*0.08 + (Math.random()*0.12));
+        const sx = Math.cos(a)*rad; const sy = Math.sin(a)*rad;
+        if(i===0) ctx.moveTo(sx,sy); else ctx.lineTo(sx,sy);
+      }
+      ctx.closePath(); ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.stroke();
+      ctx.restore();
+    }
+
+    // player
+    drawShip(ctx, player.x, player.y, player.width, player.height, player.vx * 0.0018, player.thrusting);
+
+    // particles
+    for(const p of particles){
+      ctx.save(); ctx.globalAlpha = Math.max(0, Math.min(1, p.life / p.max)); ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); ctx.restore();
+    }
+
+    // overlays
+    document.getElementById('startOverlay').style.display = playing ? 'none' : (gameOverOverlay.style.display !== 'block' ? 'block' : 'none');
+    pauseMenu.style.display = paused ? 'block' : 'none';
+    gameOverOverlay.style.display = (!playing && lives <= 0) ? 'block' : (gameOverOverlay.style.display === 'block' && playing ? 'none' : gameOverOverlay.style.display);
+  }
+
+  // init
+  function init(){
+    setCanvasSize();
+    player.y = (canvas.clientHeight || canvas.height) * 0.78;
+    player.x = (canvas.clientWidth || canvas.width) / 2;
+    initStars(140);
+    updateHUD();
+    render();
+  }
+  init();
+
+  // small spawn throttling safety
+  setInterval(()=>{ if(meteors.length > 80) meteors.splice(0, meteors.length - 80); }, 2000);
+
+  // keyboard helpers
+  window.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter' || e.key === ' '){ if(!playing) { resetGame(); } e.preventDefault(); }
+  });
+
+  // load leaderboard when pause opened
+  async function openPauseAndLoad(){
+    paused = true; pauseMenu.style.display = 'block'; document.getElementById('pauseBtn').textContent='Resume';
+    await loadLeaderboardUI();
+  }
+
+  // expose some controls for debugging
+  window._spaceEscape = { meteors, particles, player, resetGame };
+
+  // Auto-levelup adjustments: gently reduce spawn base over time
+  setInterval(()=>{ if(playing) spawnIntervalBase = Math.max(320, spawnIntervalBase - (difficulty==='hard'?3:1)); }, 4800);
+
+  // UI: tie intro diff buttons to main difficulty control
+  document.querySelectorAll('#introScreen .diff-btn').forEach(el=>{
+    el.addEventListener('click', ()=> {
+      document.querySelectorAll('#introScreen .diff-btn').forEach(b=>b.classList.remove('active'));
+      el.classList.add('active');
+      const d = (el.dataset.diff || 'normal-intro').split('-')[0];
+      document.querySelectorAll('#difficultyControl .diff-btn').forEach(b=>b.classList.toggle('active', b.dataset.diff===d));
+      applyDifficultySettings(d);
+    });
+  });
+
+})();
+</script>
+</body>
+</html>
