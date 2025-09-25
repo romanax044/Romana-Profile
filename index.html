@@ -3,209 +3,158 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Romana Akter - Portfolio</title>
+  <title>Romana Akter - Gaming Portfolio</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
+    /* Global reset */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #0f172a;
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1e1e2f);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
       color: #f1f5f9;
-      margin: 0;
-      padding: 0;
       line-height: 1.6;
     }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
     header {
       text-align: center;
-      padding: 40px 20px;
-      background: #1e293b;
+      padding: 50px 20px;
+      background: rgba(20, 20, 40, 0.7);
+      border-bottom: 2px solid #38bdf8;
+      animation: fadeIn 2s ease;
     }
+
     header h1 {
-      margin: 0;
-      font-size: 2.2em;
+      font-size: 2.5em;
+      color: #38bdf8;
+      text-shadow: 0 0 10px #38bdf8, 0 0 20px #00f7ff;
+      animation: glow 2s ease-in-out infinite alternate;
     }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 5px #38bdf8; }
+      to { text-shadow: 0 0 20px #00f7ff, 0 0 30px #38bdf8; }
+    }
+
     header p {
-      margin: 5px 0;
+      margin-top: 10px;
       font-size: 1.1em;
-      color: #94a3b8;
+      color: #cbd5e1;
     }
+
     section {
       max-width: 900px;
-      margin: auto;
+      margin: 40px auto;
       padding: 20px;
+      animation: slideUp 1.5s ease;
     }
+
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
     h2 {
-      color: #38bdf8;
+      font-size: 1.6em;
+      margin-bottom: 15px;
+      color: #00f7ff;
+      text-transform: uppercase;
+      text-shadow: 0 0 8px #00f7ff;
       border-bottom: 2px solid #38bdf8;
       padding-bottom: 5px;
-      margin-bottom: 15px;
     }
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    ul li {
-      margin: 6px 0;
-    }
+
+    ul { list-style: none; padding: 0; }
+    ul li { margin: 8px 0; font-size: 1.05em; }
+
     a {
-      color: #38bdf8;
+      color: #00f7ff;
       text-decoration: none;
+      transition: all 0.3s ease;
     }
     a:hover {
-      text-decoration: underline;
+      color: #ff4dff;
+      text-shadow: 0 0 10px #ff4dff;
     }
+
     .stats img {
       max-width: 100%;
       border-radius: 8px;
       margin: 10px 0;
+      transition: transform 0.3s ease;
     }
+    .stats img:hover { transform: scale(1.05); }
+
+    /* Game Section */
+    .game-link {
+      display: flex;
+      justify-content: center;
+      margin: 30px 0;
+    }
+    .game-btn {
+      font-family: 'Press Start 2P', cursive;
+      padding: 14px 22px;
+      font-size: 14px;
+      background: #0f0;
+      border: none;
+      border-radius: 10px;
+      color: #000;
+      cursor: pointer;
+      box-shadow: 0 0 10px #0f0, 0 0 20px #0f0 inset;
+      transition: all 0.3s ease;
+    }
+    .game-btn:hover {
+      background: #1aff1a;
+      box-shadow: 0 0 20px #0f0, 0 0 40px #0f0 inset;
+      transform: scale(1.05);
+    }
+
+    .quote {
+      font-style: italic;
+      color: #ff4dff;
+      text-align: center;
+      margin-top: 20px;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.9em;
+      animation: typing 5s steps(40, end) infinite alternate;
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 2px solid #ff4dff;
+      display: inline-block;
+    }
+
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
     footer {
       text-align: center;
       padding: 20px;
-      margin-top: 20px;
-      background: #1e293b;
+      margin-top: 40px;
+      background: rgba(20, 20, 40, 0.8);
       font-size: 0.9em;
       color: #94a3b8;
+      border-top: 2px solid #38bdf8;
     }
-    .quote {
-      font-style: italic;
-      color: #e2e8f0;
-      margin-top: 10px;
-      text-align: center;
-    }
-
-    /* 🎮 Game styles */
-    :root {
-      --bg1: #cce5ff;
-      --bg2: #e6ccff;
-      --bg3: #ffe6cc;
-      --card: rgba(255,255,255,0.6);
-      --accent: #4d94ff;
-      --muted: #666666;
-      --win: #28a745;
-      --lose: #ff4d6d;
-    }
-
-    .game-container {
-      display: flex;
-      justify-content: center;
-      padding: 40px 20px;
-    }
-
-    .game {
-      width: 100%;
-      max-width: 760px;
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      color: #333;
-    }
-
-    .game h1 {
-      margin: 0 0 10px 0;
-      font-size: 22px;
-      text-align: center;
-      color: #333;
-    }
-
-    .instructions {
-      background: rgba(255, 255, 255, 0.6);
-      padding: 12px 14px;
-      border-radius: 10px;
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 14px;
-    }
-
-    .board { display: flex; gap: 18px; align-items: flex-start; }
-    .play-area {
-      flex: 1;
-      padding: 16px;
-      background: rgba(255, 255, 255, 0.5);
-      border-radius: 12px;
-    }
-
-    .scoreboard {
-      width: 220px;
-      padding: 16px;
-      background: rgba(255, 255, 255, 0.5);
-      border-radius: 12px;
-      text-align: center;
-    }
-
-    .scoreboard h2 { margin: 0 0 8px 0; font-size: 16px; }
-    .score { font-size: 28px; margin: 6px 0; color: var(--accent); font-weight: 600; }
-
-    .result {
-      margin-top: 10px;
-      min-height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-    }
-
-    .controls { display: flex; gap: 10px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
-    button.choice {
-      background: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(230,230,230,0.8));
-      border: 1px solid rgba(0,0,0,0.1);
-      color: #333;
-      padding: 12px 18px;
-      font-size: 16px;
-      border-radius: 12px;
-      cursor: pointer;
-      min-width: 110px;
-      transition: all 0.3s ease;
-    }
-    button.choice:hover {
-      transform: translateY(-3px) scale(1.05);
-      box-shadow: 0 0 15px rgba(77, 148, 255, 0.6);
-    }
-    button.choice:active {
-      transform: scale(0.95);
-      box-shadow: 0 0 10px rgba(77, 148, 255, 0.8);
-    }
-
-    .small { font-size: 13px; color: var(--muted); }
-    .status-row { display: flex; gap: 12px; justify-content: space-between; align-items: center; margin-top: 12px; }
-
-    .message {
-      font-size: 15px;
-      text-align: center;
-      padding: 10px 12px;
-      border-radius: 8px;
-    }
-
-    .win { background: rgba(40, 167, 69, 0.15); color: var(--win); }
-    .lose { background: rgba(255, 77, 109, 0.15); color: var(--lose); }
-    .tie  { background: rgba(77, 148, 255, 0.15); color: var(--accent); }
-
-    .footer { margin-top: 14px; display: flex; gap: 8px; justify-content: center; align-items: center; }
-    button#restart {
-      padding: 10px 14px;
-      border-radius: 8px;
-      border: 0;
-      cursor: pointer;
-      background: var(--accent);
-      color: #fff;
-      font-weight: 700;
-      transition: background 0.3s ease;
-    }
-    button#restart:hover { background: #3366cc; }
-
-    .choices-row { display: flex; gap: 10px; justify-content: center; margin-top: 12px; }
-    .cpu-choice, .player-choice { font-size: 14px; color: var(--muted); margin-top: 6px; }
-
-    @media (max-width:720px){
-      .board { flex-direction: column }
-      .scoreboard { width: 100% }
+    footer:hover {
+      text-shadow: 0 0 10px #38bdf8;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Hi there 👋, I'm Romana Akter</h1>
-    <p>Aspiring Programmer | Lifelong Learner | From Bangladesh</p>
+    <h1>Romana Akter</h1>
+    <p>Aspiring Programmer | Gamer | From Bangladesh</p>
     <p>21 years old • Passionate about learning programming</p>
   </header>
 
@@ -221,10 +170,10 @@
 
     <h2>🚀 Skills</h2>
     <ul>
-      <li>Programming Languages: Python, C (beginner level)</li>
-      <li>Web Development: HTML, CSS (learning)</li>
-      <li>Version Control: Git & GitHub basics</li>
-      <li>Other Interests: Sketching & Cooking</li>
+      <li>💻 Programming: Python, C (beginner level)</li>
+      <li>🌐 Web Development: HTML, CSS</li>
+      <li>⚡ Version Control: Git & GitHub basics</li>
+      <li>🎨 Other Interests: Sketching & Cooking</li>
     </ul>
 
     <h2>📂 My Goals</h2>
@@ -240,172 +189,24 @@
       <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=romanax044&layout=compact&theme=radical" alt="Top Languages">
     </div>
 
+    <h2>🎮 My Games</h2>
+    <div class="game-link">
+      <a href="game3.html" target="_blank">
+        <button class="game-btn">▶ Start Game</button>
+      </a>
+    </div>
+
     <h2>🌐 Connect with Me</h2>
     <ul>
       <li>📧 Email: <a href="mailto:akterromana98ps@gmail.com">akterromana98ps@gmail.com</a></li>
       <li>💼 GitHub: <a href="https://github.com/romanax044/Romana-Profile" target="_blank">Romana Profile</a></li>
     </ul>
 
-    <p class="quote">✨ “Every expert was once a beginner — and I’m on my journey to grow as a programmer.”</p>
-  </section>
-
-  <!-- 🎮 Game Section -->
-  <section>
-    <h2>🎮 My Game: Rock Paper Scissors</h2>
-    <div class="game-container">
-      <div class="game" role="application" aria-label="Rock Paper Scissors game">
-        <h1>Rock • Paper • Scissors</h1>
-        <div class="instructions">
-          <strong>How to play:</strong>
-          Choose Rock, Paper, or Scissors. Rock beats Scissors, Scissors beats Paper, Paper beats Rock.
-          First player to <strong>5 points</strong> wins. You can also use keyboard shortcuts:
-          <kbd>R</kbd> = Rock, <kbd>P</kbd> = Paper, <kbd>S</kbd> = Scissors.
-        </div>
-        <div class="board">
-          <div class="play-area" aria-live="polite">
-            <div style="text-align:center">
-              <div class="choices-row">
-                <div>
-                  <div class="small">Your choice</div>
-                  <div id="playerChoice" class="player-choice">—</div>
-                </div>
-                <div>
-                  <div class="small">Computer choice</div>
-                  <div id="computerChoice" class="cpu-choice">—</div>
-                </div>
-              </div>
-            </div>
-            <div class="controls">
-              <button class="choice" data-choice="rock" id="btnRock">✊ Rock</button>
-              <button class="choice" data-choice="paper" id="btnPaper">🖐️ Paper</button>
-              <button class="choice" data-choice="scissors" id="btnScissors">✌️ Scissors</button>
-            </div>
-            <div class="result" id="roundResult" aria-live="assertive">Make your move!</div>
-            <div class="status-row">
-              <div class="small">First to <strong>5</strong> wins</div>
-              <div class="small">Tip: keys R / P / S also play</div>
-            </div>
-            <div class="footer">
-              <button id="restart">Restart</button>
-            </div>
-          </div>
-          <div class="scoreboard">
-            <h2>Scoreboard</h2>
-            <div class="score" id="scoreText">You 0 : 0 CPU</div>
-            <div class="message" id="messageBox">Good luck!</div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <p class="quote">“Every expert was once a beginner — and I’m on my journey to grow as a programmer.”</p>
   </section>
 
   <footer>
-    &copy; 2025 Romana Akter | Built with 💙
+    &copy; 2025 Romana Akter | Built with 💙 Neon Vibes
   </footer>
-
-<script>
-  // Game logic
-  (function(){
-    const choices = ['rock','paper','scissors'];
-    const winScore = 5;
-    let playerScore = 0, cpuScore = 0, finished = false;
-
-    const btnRock = document.getElementById('btnRock');
-    const btnPaper = document.getElementById('btnPaper');
-    const btnScissors = document.getElementById('btnScissors');
-    const restartBtn = document.getElementById('restart');
-
-    const playerChoiceEl = document.getElementById('playerChoice');
-    const cpuChoiceEl = document.getElementById('computerChoice');
-    const scoreText = document.getElementById('scoreText');
-    const messageBox = document.getElementById('messageBox');
-    const roundResult = document.getElementById('roundResult');
-
-    function computerPick(){
-      return choices[Math.floor(Math.random()*choices.length)];
-    }
-    function determineWinner(player, cpu){
-      if(player === cpu) return 'tie';
-      if((player === 'rock' && cpu === 'scissors') ||
-         (player === 'paper' && cpu === 'rock') ||
-         (player === 'scissors' && cpu === 'paper')) return 'player';
-      return 'cpu';
-    }
-    function choiceIcon(c){
-      if(c === 'rock') return '✊ Rock';
-      if(c === 'paper') return '🖐️ Paper';
-      if(c === 'scissors') return '✌️ Scissors';
-      return '—';
-    }
-    function updateUI(){
-      scoreText.textContent = `You ${playerScore} : ${cpuScore} CPU`;
-      if(playerScore >= winScore){
-        messageBox.textContent = 'You won the match! 🎉';
-        messageBox.className = 'message win';
-      } else if(cpuScore >= winScore){
-        messageBox.textContent = 'CPU won the match. Try again!';
-        messageBox.className = 'message lose';
-      } else {
-        messageBox.textContent = 'Play a round — first to ' + winScore + ' wins.';
-        messageBox.className = 'message';
-      }
-    }
-    function disableChoices(val){
-      [btnRock, btnPaper, btnScissors].forEach(b => b.disabled = val);
-      [btnRock, btnPaper, btnScissors].forEach(b => b.style.opacity = val ? '0.6' : '1');
-    }
-    function playRound(playerChoice){
-      if(finished) return;
-      const cpuChoice = computerPick();
-      playerChoiceEl.textContent = choiceIcon(playerChoice);
-      cpuChoiceEl.textContent = choiceIcon(cpuChoice);
-
-      const winner = determineWinner(playerChoice, cpuChoice);
-      if(winner === 'tie'){
-        roundResult.textContent = "It's a tie.";
-        roundResult.className = 'result tie';
-      } else if(winner === 'player'){
-        playerScore++;
-        roundResult.textContent = "You win this round!";
-        roundResult.className = 'result win';
-      } else {
-        cpuScore++;
-        roundResult.textContent = "CPU wins this round.";
-        roundResult.className = 'result lose';
-      }
-      updateUI();
-      if(playerScore >= winScore || cpuScore >= winScore){
-        finished = true;
-        disableChoices(true);
-      }
-    }
-
-    btnRock.addEventListener('click', ()=> playRound('rock'));
-    btnPaper.addEventListener('click', ()=> playRound('paper'));
-    btnScissors.addEventListener('click', ()=> playRound('scissors'));
-    restartBtn.addEventListener('click', resetGame);
-
-    document.addEventListener('keydown', (e)=>{
-      if(e.key.toLowerCase() === 'r') playRound('rock');
-      if(e.key.toLowerCase() === 'p') playRound('paper');
-      if(e.key.toLowerCase() === 's') playRound('scissors');
-      if(e.key === 'Enter' && finished) resetGame();
-    });
-
-    function resetGame(){
-      playerScore = 0; cpuScore = 0; finished = false;
-      playerChoiceEl.textContent = '—';
-      cpuChoiceEl.textContent = '—';
-      roundResult.textContent = 'Make your move!';
-      roundResult.className = 'result';
-      messageBox.textContent = 'Play a round — first to ' + winScore + ' wins.';
-      messageBox.className = 'message';
-      updateUI();
-      disableChoices(false);
-    }
-
-    resetGame();
-  })();
-</script>
 </body>
 </html>
