@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DD-Clues Data Explorer</title>
+  <!-- Bootstrap (for quick UI) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- PapaParse for CSV parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <!-- Chart.js for charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+  <style>
+    body { padding: 18px; background: #f7f9fc; }
+    .code-box { font-family: monospace; font-size: 12px; background: #fff; border-radius: 8px; padding: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.05)}
+    table.data-table { width: 100%; table-layout: fixed; }
+    table.data-table td, table.data-table th { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .small-muted { font-size: .85rem; color: #6c757d; }
+  </style>
+</head>
+<body>
+<div class="container-fluid">
+  <div class="row g-3">
+    <div class="col-12">
+      <h2>DD‑Clues Data Explorer — single HTML file</h2>
+      <p class="small-muted">Upload a CSV and explore: preview, descriptive stats, anomaly detection, grouping, date/time trends, charts, filtering and download results.</p>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card p-3">
+        <label class="form-label">Choose CSV file</label>
+        <input id="fileInput" type="file" accept=".csv,text/csv" class="form-control mb-2">
+        <div class="mb-2">
+          <button id="btnPreview" class="btn btn-primary btn-sm">Load & Preview</button>
+          <button id="btnClear" class="btn btn-outline-secondary btn-sm">Clear</button>
+        </div>
+
+        <hr>
+        <div class="mb-2">
+          <label class="form-label">Numeric anomaly method</label>
+          <select id="anomalyMethod" class="form-select form-select-sm">
+            <option value="iqr">IQR (default)</option>
+            <option value="zscore">Z-score (&gt; 3)</option>
+          </select>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Choose date column (for time analysis)</label>
+          <select id="dateColumn" class="form-select form-select-sm"><option value="">-- none --</option></select>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Choose value column (for time trend)</label>
+          <select id="valueColumn" class="form-select form-select-sm"><option value="">-- none --</option></select>
+        </div>
+
+        <div class="d-grid gap-2">
+          <button id="btnTimeTrend" class="btn btn-success btn-sm">Show Time Trend</button>
+          <button id="btnFindAnoms" class="btn btn-warning btn-sm">Find Anomalies (by numeric col)</button>
+          <button id="btnExportAnoms" class="btn btn-outline-danger btn-sm">Download Anomalies CSV</button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-md-8">
+      <div class="card p-3">
+        <h5>Quick actions</h5>
+        <div class="row gy-2">
+          <div class="col-md-6">
+            <label class="form-label">Filter: column</label>
+            <select id="filterCol" class="form-select form-select-sm"><option value="">--</option></select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Operator</label>
+            <select id="filterOp" class="form-select form-select-sm">
+              <option value="=">=</option>
+              <option value=">">&gt;</option>
+              <option value="<">&lt;</option>
+              <option value=">=">&gt;=</option>
+              <option value="<=">&lt;=</option>
+              <option value="contains">contains</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Value</label>
+            <input id="filterVal" class="form-control form-control-sm" />
+          </div>
+          <div class="col-md-12 mt-2 text-end">
+            <button id="applyFilter" class="btn btn-primary btn-sm">Apply Filter</button>
+            <button id="clearFilter" class="btn btn-outline-secondary btn-sm">Clear Filter</button>
+          </div>
+        </div>
+
+        <hr>
+        <h6>Group & Aggregate</h6>
+        <div class="row gy-2">
+          <div class="col-md-5"><select id="groupCol" class="form-select form-select-sm"><option value="">-- group by --</option></select></div>
+          <div class="col-md-4"><select id="aggCol" class="form-select form-select-sm"><option value="">-- agg column --</option></select></div>
+          <div class="col-md-3"><select id="aggFunc" class="form-select form-select-sm"><option value="sum">sum</option><option value="mean">mean</option><option value="count">count</option></select></div>
+          <div class="col-md-12 text-end mt-2"><button id="btnGroup" class="btn btn-dark btn-sm">Run Group/Aggregate</button></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card p-2">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 class="m-0">Data preview</h5>
+          <div><span id="rowCount" class="small-muted">Rows: 0</span></div>
+        </div>
+        <div class="table-responsive" style="max-height:360px; overflow:auto;">
+          <table id="dataTable" class="table table-sm table-striped data-table"><thead></thead><tbody></tbody></table>
+        </div>
+
+        <hr>
+        <div class="row">
+          <div class="col-md-4">
+            <h6>Descriptive statistics (numeric)</h6>
+            <div id="statsOut" class="code-box"></div>
+          </div>
+          <div class="col-md-4">
+            <h6>Unique counts (categorical)</h6>
+            <div id="uniqueOut" class="code-box" style="max-height:220px; overflow:auto"></div>
+          </div>
+          <div class="col-md-4">
+            <h6>Group/Aggregate result</h6>
+            <div id="groupOut" class="code-box" style="max-height:220px; overflow:auto"></div>
+          </div>
+        </div>
+
+        <hr>
+        <h6>Charts</h6>
+        <canvas id="chartCanvas" height="120"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Globals
+let rawData = [];
+let headers = [];
+let currentFiltered = [];
+let anomalies = [];
+let chart = null;
+
+function formatNum(n, dec=2){ return (Number.isFinite(n)? n.toFixed(dec) : String(n)); }
+
+// Helpers
+function detectNumericColumns(rows){
+  const numCols = [];
+  if(!rows.length) return numCols;
+  headers.forEach(h => {
+    let numericCount = 0, total=0;
+    for(let r of rows){ total++; if(r[h]!==undefined && r[h] !== null && r[h] !== ''){ if(!isNaN(Number(r[h]))) numericCount++; } }
+    if(numericCount/total >= 0.6) numCols.push(h);
+  });
+  return numCols;
+}
+
+function detectDateColumns(rows){
+  const dateCols = [];
+  if(!rows.length) return dateCols;
+  headers.forEach(h => {
+    let dateCount=0, total=0;
+    for(let r of rows){ total++; const v = r[h]; if(!v) continue; const d = Date.parse(v); if(!Number.isNaN(d)) dateCount++; }
+    if(dateCount/Math.max(total,1) >= 0.6) dateCols.push(h);
+  });
+  return dateCols;
+}
+
+function computeStats(rows){
+  const numCols = detectNumericColumns(rows);
+  const out = {};
+  for(let col of numCols){
+    const vals = rows.map(r=>{ const n=Number(r[col]); return Number.isFinite(n)? n : null }).filter(x=>x!==null);
+    vals.sort((a,b)=>a-b);
+    const n = vals.length;
+    if(n===0) continue;
+    const sum = vals.reduce((a,b)=>a+b,0);
+    const mean = sum/n;
+    const median = (n%2===1)? vals[(n-1)/2] : (vals[n/2-1]+vals[n/2])/2;
+    const min = vals[0], max = vals[n-1];
+    const q1 = vals[Math.floor((n-1)*0.25)];
+    const q3 = vals[Math.floor((n-1)*0.75)];
+    const sq = vals.reduce((a,b)=> a + Math.pow(b-mean,2), 0);
+    const std = Math.sqrt(sq/(n-1||1));
+    out[col] = {count:n, sum, mean, median, min, max, q1, q3, std, iqr: q3-q1};
+  }
+  return out;
+}
+
+function showStats(){
+  const stats = computeStats(currentFiltered.length? currentFiltered : rawData);
+  const el = document.getElementById('statsOut');
+  el.innerHTML = '';
+  for(const k in stats){
+    const s = stats[k];
+    el.innerHTML += `<strong>${k}</strong><br>count: ${s.count} mean: ${formatNum(s.mean)} std: ${formatNum(s.std)} min: ${formatNum(s.min)} q1: ${formatNum(s.q1)} median: ${formatNum(s.median)} q3: ${formatNum(s.q3)} max: ${formatNum(s.max)}<hr>`;
+  }
+}
+
+function computeUniqueCounts(rows){
+  const out = {};
+  headers.forEach(h => {
+    const vals = {};
+    for(let r of rows){ const v = r[h]; vals[v] = (vals[v]||0)+1; }
+    out[h] = Object.keys(vals).length <= 50 ? vals : Object.keys(vals).length; // if many values, show count only
+  });
+  return out;
+}
+
+function showUnique(){
+  const u = computeUniqueCounts(rawData);
+  const el = document.getElementById('uniqueOut');
+  el.innerHTML = '';
+  for(const k in u){
+    el.innerHTML += `<strong>${k}</strong>: `;
+    if(typeof u[k] === 'number') el.innerHTML += `${u[k]} unique values`;
+    else{
+      el.innerHTML += '<div style="max-height:120px; overflow:auto">';
+      for(const v in u[k]) el.innerHTML += `${v} (${u[k][v]}) — `;
+      el.innerHTML += '</div>';
+    }
+    el.innerHTML += '<hr>';
+  }
+}
+
+function renderTable(rows){
+  const thead = document.querySelector('#dataTable thead');
+  const tbody = document.querySelector('#dataTable tbody');
+  thead.innerHTML = '';
+  tbody.innerHTML = '';
+  if(!rows || !rows.length) return;
+  // header row
+  let tr = document.createElement('tr');
+  headers.forEach(h => { const th = document.createElement('th'); th.textContent = h; tr.appendChild(th); });
+  thead.appendChild(tr);
+  // body
+  const maxRows = Math.min(200, rows.length);
+  for(let i=0;i<maxRows;i++){
+    const row = rows[i];
+    const trb = document.createElement('tr');
+    headers.forEach(h=>{ const td = document.createElement('td'); td.textContent = row[h]; trb.appendChild(td); });
+    tbody.appendChild(trb);
+  }
+  document.getElementById('rowCount').textContent = `Rows: ${rows.length} (showing ${maxRows})`;
+}
+
+function populateSelectors(){
+  const selIds = ['filterCol','groupCol','aggCol','dateColumn','valueColumn'];
+  selIds.forEach(id => {
+    const el = document.getElementById(id);
+    el.innerHTML = (id === 'dateColumn' || id==='valueColumn') ? '<option value="">-- none --</option>' : '<option value="">--</option>';
+    headers.forEach(h => { const opt = document.createElement('option'); opt.value = h; opt.textContent = h; el.appendChild(opt); });
+  });
+}
+
+function applyFilterRows(){
+  const col = document.getElementById('filterCol').value;
+  const op = document.getElementById('filterOp').value;
+  const val = document.getElementById('filterVal').value;
+  if(!col || val==='') { currentFiltered = []; renderTable(rawData); showStats(); return; }
+  const filtered = rawData.filter(r => {
+    const cell = r[col];
+    if(op === 'contains') return String(cell).toLowerCase().includes(String(val).toLowerCase());
+    const numCell = Number(cell); const numVal = Number(val);
+    if(!isNaN(numCell) && !isNaN(numVal)){
+      if(op==='=') return numCell === numVal;
+      if(op==='>') return numCell > numVal;
+      if(op==='<') return numCell < numVal;
+      if(op==='>=') return numCell >= numVal;
+      if(op==='<=' ) return numCell <= numVal;
+    }
+    // fallback string equality
+    if(op==='=') return String(cell) === val;
+    return false;
+  });
+  currentFiltered = filtered;
+  renderTable(filtered);
+  showStats();
+}
+
+function groupAggregate(){
+  const group = document.getElementById('groupCol').value;
+  const agg = document.getElementById('aggCol').value;
+  const func = document.getElementById('aggFunc').value;
+  if(!group || !agg){ document.getElementById('groupOut').textContent = 'Select group and agg columns.'; return; }
+  const rows = currentFiltered.length? currentFiltered : rawData;
+  const map = {};
+  for(let r of rows){ const key = r[group] || '(blank)'; if(!map[key]) map[key]=[]; const v = Number(r[agg]); if(Number.isFinite(v)) map[key].push(v); else map[key].push(null); }
+  const res = [];
+  for(const k in map){ const arr = map[k].filter(x=>x!==null); let value = null; if(func==='count') value = map[k].length; else if(func==='sum') value = arr.reduce((a,b)=>a+b,0); else if(func==='mean') value = arr.length? (arr.reduce((a,b)=>a+b,0)/arr.length) : null; res.push({group:k, value}); }
+  res.sort((a,b)=> (b.value||0)-(a.value||0));
+  document.getElementById('groupOut').innerHTML = res.map(r=>`${r.group}: ${r.value===null? 'null': formatNum(r.value,2)}`).join('<br>');
+  // show bar chart
+  drawChart(res.map(r=>r.group), res.map(r=> r.value===null? 0: r.value), `${func} of ${agg} by ${group}` );
+}
+
+function drawChart(labels, data, title="Chart"){
+  const ctx = document.getElementById('chartCanvas');
+  if(chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{ label: title, data: data }]
+    },
+    options: { responsive:true, maintainAspectRatio:false }
+  });
+}
+
+function timeTrend(){
+  const dateCol = document.getElementById('dateColumn').value;
+  const valCol = document.getElementById('valueColumn').value;
+  if(!dateCol || !valCol){ alert('Choose date and value columns'); return; }
+  const rows = rawData.map(r=> ({d: new Date(r[dateCol]), v: Number(r[valCol])})).filter(x=> x.d instanceof Date && !isNaN(x.d) && Number.isFinite(x.v));
+  if(!rows.length){ alert('No valid date/value pairs found'); return; }
+  // aggregate by day
+  const map = {};
+  rows.forEach(r => { const key = r.d.toISOString().slice(0,10); if(!map[key]) map[key]=[]; map[key].push(r.v); });
+  const labels = Object.keys(map).sort();
+  const values = labels.map(l => { const arr = map[l]; return arr.reduce((a,b)=>a+b,0)/arr.length; });
+  drawTime(labels, values, `${valCol} over time`);
+}
+
+function drawTime(labels, data, title="Time series"){
+  const ctx = document.getElementById('chartCanvas');
+  if(chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [{ label: title, data }] },
+    options: { responsive:true, maintainAspectRatio:false }
+  });
+}
+
+function findAnomalies(){
+  const rows = currentFiltered.length? currentFiltered : rawData;
+  const stats = computeStats(rows);
+  const method = document.getElementById('anomalyMethod').value;
+  anomalies = [];
+  for(const col in stats){
+    const s = stats[col];
+    if(method==='iqr'){
+      const lower = s.q1 - 1.5*s.iqr; const upper = s.q3 + 1.5*s.iqr;
+      rows.forEach(r=>{ const n = Number(r[col]); if(Number.isFinite(n) && (n < lower || n > upper)) anomalies.push(Object.assign({__anomaly_col:col, __anomaly_val:n}, r)); });
+    } else {
+      rows.forEach(r=>{ const n = Number(r[col]); if(Number.isFinite(n) && Math.abs((n-s.mean)/ (s.std||1)) > 3) anomalies.push(Object.assign({__anomaly_col:col, __anomaly_val:n}, r)); });
+    }
+  }
+  // deduplicate by row reference (stringify)
+  const uniq = {};
+  const deduped = [];
+  anomalies.forEach(a => { const key = JSON.stringify(a); if(!uniq[key]){ uniq[key]=true; deduped.push(a); } });
+  anomalies = deduped;
+  renderTable(anomalies);
+  document.getElementById('rowCount').textContent = `Anomalies found: ${anomalies.length}`;
+  return anomalies;
+}
+
+function exportAnomalies(){
+  if(!anomalies.length) { alert('No anomalies to export — run Find Anomalies first'); return; }
+  const csv = Papa.unparse(anomalies);
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'anomalies.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+// Event handlers
+document.getElementById('btnPreview').addEventListener('click', ()=>{
+  const f = document.getElementById('fileInput').files[0];
+  if(!f) return alert('Select a CSV file');
+  Papa.parse(f, { header:true, dynamicTyping:false, skipEmptyLines:true, complete: function(results){ rawData = results.data; headers = results.meta.fields || Object.keys(rawData[0]||{}); currentFiltered = []; anomalies = []; renderTable(rawData); populateSelectors(); showStats(); showUnique(); }});
+});
+
+document.getElementById('btnClear').addEventListener('click', ()=>{ rawData=[]; headers=[]; currentFiltered=[]; anomalies=[]; renderTable([]); document.getElementById('statsOut').innerHTML=''; document.getElementById('uniqueOut').innerHTML=''; document.getElementById('groupOut').innerHTML=''; document.getElementById('rowCount').textContent='Rows: 0'; });
+
+document.getElementById('applyFilter').addEventListener('click', applyFilterRows);
+document.getElementById('clearFilter').addEventListener('click', ()=>{ currentFiltered=[]; renderTable(rawData); showStats(); });
+
+document.getElementById('btnGroup').addEventListener('click', groupAggregate);
+document.getElementById('btnTimeTrend').addEventListener('click', timeTrend);
+document.getElementById('btnFindAnoms').addEventListener('click', findAnomalies);
+document.getElementById('btnExportAnoms').addEventListener('click', exportAnomalies);
+
+// When file loaded, try detect date columns to help user
+// Also update selectors on load from populateSelectors function
+
+</script>
+</body>
+</html>
